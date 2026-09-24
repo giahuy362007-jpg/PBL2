@@ -7,7 +7,7 @@ int main()
     int a, b;
     cin>>a>>b; 
     cout<<a-b;
-
+    //thawnsg test
     // t ms sua ne
     return 0;
 }
