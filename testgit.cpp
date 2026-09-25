@@ -8,6 +8,6 @@ int main()
     cin>>a>>b; 
     cout<<a-b;
     //thawnsg test
-    // t ms sua ne
+    //huy day thang oi dung sua nghe
     return 0;
 }
