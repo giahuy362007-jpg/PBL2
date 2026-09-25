@@ -1,0 +1,7 @@
+b001;it;a1
+b002;it;a1
+b003;it;a2
+b004;it;a2
+b005;tieu thuyet;b1
+b006;tieu thuyet;b2
+b007;ky nang;c1
