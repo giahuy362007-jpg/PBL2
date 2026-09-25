@@ -9,7 +9,7 @@ borrow::borrow() {
     this->user_id = "";
     this->borrow_date = "";
     this->due_date = "";
-    this->status = "dang muon"; // mặc định khi tạo mới là đang mượn
+    this->status = ""; // mặc định khi tạo mới là đang mượn
 }
 
 borrow::borrow(string id, string book_id, string user_id, string borrow_date, string due_date, string status) {
