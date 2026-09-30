@@ -1,49 +1,45 @@
-#ifndef DATE_H
-#define DATE_H
+#pragma once
 
 #include <iostream>
-using namespace std;
 
-class Date {
+class date {
 private:
     int day;
     int month;
     int year;
 
-    bool isLeapYear() const;
-    int daysInMonth() const;
+    bool is_leap_year() const;
+    int days_in_month() const;
 
 public:
-    Date();
-    Date(int day, int month, int year);
+    date();
+    date(int day, int month, int year);
 
-    bool isValid() const;
+    bool is_valid() const;
 
     void input();
     void output() const;
 
-    int getDay() const;
-    int getMonth() const;
-    int getYear() const;
+    int get_day() const;
+    int get_month() const;
+    int get_year() const;
 
-    void setDay(int day);
-    void setMonth(int month);
-    void setYear(int year);
+    void set_day(int day);
+    void set_month(int month);
+    void set_year(int year);
 
-    Date& operator++();
-    Date operator++(int);
+    date& operator++();
+    date operator++(int);
 
-    bool operator==(const Date& other) const;
-    bool operator!=(const Date& other) const;
-    bool operator<(const Date& other) const;
-    bool operator>(const Date& other) const;
-    bool operator<=(const Date& other) const;
-    bool operator>=(const Date& other) const;
+    bool operator==(const date& other) const;
+    bool operator!=(const date& other) const;
+    bool operator<(const date& other) const;
+    bool operator>(const date& other) const;
+    bool operator<=(const date& other) const;
+    bool operator>=(const date& other) const;
 
-    int operator-(const Date& other) const;
+    int operator-(const date& other) const;
 
-    friend istream& operator>>(istream& in, Date& date);
-    friend ostream& operator<<(ostream& out, const Date& date);
+    friend std::istream& operator>>(std::istream& in, date& d);
+    friend std::ostream& operator<<(std::ostream& out, const date& d);
 };
-
-#endif
