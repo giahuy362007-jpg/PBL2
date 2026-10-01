@@ -42,4 +42,5 @@ public:
 
     friend std::istream& operator>>(std::istream& in, date& d);
     friend std::ostream& operator<<(std::ostream& out, const date& d);
+    std::string get_day_of_week() const; // Hàm tự động tính ra thứ
 };
