@@ -193,3 +193,31 @@ std::ostream& operator<<(std::ostream& out, const date& d) {
     out << d.day << "/" << d.month << "/" << d.year;
     return out;
 }
+std::string date::get_day_of_week() const {
+    int d = this->day;
+    int m = this->month;
+    int y = this->year;
+    
+    // Thuật toán yêu cầu tháng 1, 2 phải được tính là tháng 13, 14 của năm trước
+    if (m < 3) {
+        m += 12;
+        y -= 1;
+    }
+    
+    int k = y % 100;
+    int j = y / 100;
+    
+    // Công thức Zeller
+    int f = d + ((13 * (m + 1)) / 5) + k + (k / 4) + (j / 4) + (5 * j);
+    int day_of_week = f % 7;
+    
+    // Zeller trả về: 0 = Thứ 7, 1 = Chủ nhật, 2 = Thứ 2...
+    if(day_of_week == 0 ) return "thu 7";
+        else if(day_of_week == 1 ) return "chu nhat";
+             else if(day_of_week == 2 ) return "thu 2";
+                  else if(day_of_week == 3 ) return "thu 3";
+                        else if(day_of_week == 4 ) return "thu 4";
+                            else if(day_of_week == 5 ) return "thu 5";
+                                 else if(day_of_week == 6 ) return "thu 6";
+    return "";
+}
