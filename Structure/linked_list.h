@@ -29,6 +29,12 @@ public:
     void remove(int position);
 
     void clear();
+
+    void set_head(node<t>* new_head);
+    void set_tail(node<t>* new_tail);
+
+    void update_after_sort(node<t>* new_head);
+    void remove_node(node<t>* target);
 };
 
 #include "linked_list.cpp"

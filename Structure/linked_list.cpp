@@ -169,3 +169,46 @@ void linked_list<t>::clear() {
     while (!empty())
         pop_front();
 }
+// --- Cập nhật lại head, tail và size sau khi sắp xếp (Merge Sort) ---
+template <typename t>
+void linked_list<t>::update_after_sort(node<t>* new_head) {
+    head = new_head;
+    if (head == nullptr) {
+        tail = nullptr;
+        size = 0;
+        return;
+    }
+    node<t>* curr = head;
+    int count = 1;
+    while (curr->get_next() != nullptr) {
+        curr = curr->get_next();
+        count++;
+    }
+    tail = curr;
+    size = count;
+}
+
+// --- Xóa một node bất kỳ khi đã có địa chỉ đích ---
+template <typename t>
+void linked_list<t>::remove_node(node<t>* target) {
+    if (target == nullptr || empty()) return;
+    if (target == head) { pop_front(); return; }
+    if (target == tail) { pop_back(); return; }
+
+    target->get_prev()->set_next(target->get_next());
+    target->get_next()->set_prev(target->get_prev());
+    delete target;
+    size--;
+}
+
+// --- Cập nhật con trỏ head ---
+template <typename t>
+void linked_list<t>::set_head(node<t>* new_head) {
+    this->head = new_head;
+}
+
+// --- Cập nhật con trỏ tail ---
+template <typename t>
+void linked_list<t>::set_tail(node<t>* new_tail) {
+    this->tail = new_tail;
+}
