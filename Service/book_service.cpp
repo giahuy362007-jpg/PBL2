@@ -140,3 +140,24 @@ void book_service::sort_books(bool (*cmp)(book, book)) {
     }
     book_list.set_tail(temp);
 }
+// --- Tách dòng từ book.txt (Định dạng: ID;Title;Author;Category;Quantity;Year) ---
+void book_service::parse_line(std::string line, book& b) {
+    std::stringstream ss(line);
+    std::string id, title, author, category;
+    std::string qty_str, year_str;
+
+    // Đọc các trường dạng chuỗi phân cách bởi dấu ';'
+    std::getline(ss, id, ';');
+    std::getline(ss, title, ';');
+    std::getline(ss, author, ';');
+    std::getline(ss, category, ';');
+    std::getline(ss, qty_str, ';');
+    std::getline(ss, year_str, ';');
+
+    // Chuyển đổi các trường số lượng và năm xuất bản từ string sang int an toàn
+    int quantity = qty_str.empty() ? 0 : std::stoi(qty_str);
+    int year = year_str.empty() ? 0 : std::stoi(year_str);
+
+    // Khởi tạo đối tượng book hoàn chỉnh
+    b = book(id, title, author, category, quantity, year);
+}

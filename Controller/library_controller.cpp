@@ -1,7 +1,7 @@
 #include "library_controller.h"
 
 library_controller::library_controller() 
-    : b_service("book.txt"), u_service("user.txt"), br_service("borrow.txt"), s_service("shift.txt") {
+    : b_service("Data/book.txt"), u_service("Data/user.txt"), br_service("Data/borrow.txt"), s_service("Data/shift.txt") {
     current_logged_in_user = nullptr;
 }
 

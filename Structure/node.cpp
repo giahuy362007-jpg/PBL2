@@ -42,3 +42,8 @@ template <typename t>
 void node<t>::set_prev(node<t>* prev) {
     this->prev = prev;
 }
+template <typename t>
+t& node<t>::get_Data()
+{
+    return data;
+}

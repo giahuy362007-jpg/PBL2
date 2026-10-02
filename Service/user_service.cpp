@@ -61,15 +61,17 @@ bool user_service::save_data() {
 }
 
 // --- 3. XÁC THỰC ĐĂNG NHẬP ---
-user* user_service::login(std::string id, std::string password) {
+user* user_service::login(std::string id, std::string password)
+{
     node<user>* target = user_index.find(id);
-    if (target == nullptr) return nullptr; // Không tìm thấy ID
 
-    // Kiểm tra mật khẩu khớp không
-    if (target->get_data().get_password() == password) {
-        return &(target->get_data()); // Trả về con trỏ user để quản lý phiên làm việc
-    }
-    return nullptr; // Sai mật khẩu
+    if (target == nullptr)
+        return nullptr;
+
+    if (target->get_Data().get_password() == password)
+        return &target->get_Data();
+
+    return nullptr; // sai mk
 }
 
 // --- Kiểm tra phân quyền (Hỗ trợ Admin, Manager) ---
