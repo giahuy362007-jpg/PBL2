@@ -41,10 +41,10 @@ bool book_service::save_data() {
     while (curr != nullptr) {
         book b = curr->get_data();
         // Giả sử các trường cách nhau bởi dấu phẩy (CSV)
-        file << b.get_id() << "," 
-             << b.get_title() << "," 
-             << b.get_author() << "," 
-             << b.get_year() << "," 
+        file << b.get_id() << ";" 
+             << b.get_title() << ";" 
+             << b.get_author() << ";" 
+             << b.get_year() << ";" 
              << b.get_quantity() << "\n";
         curr = curr->get_next();
     }

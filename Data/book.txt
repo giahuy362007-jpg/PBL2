@@ -1,7 +1,7 @@
-B001,Lap trinh C++ co ban,Nguyen Thanh Thuy,2020,10
-B002,Cau truc du lieu va Giai thuat,Le Minh Hoang,2015,5
-B003,Dac Nhan Tam,Dale Carnegie,2021,15
-B004,Clean Code,Robert C. Martin,2008,8
-B005,Nha Gia Kim,Paulo Coelho,1988,12
-B006,Toi thay hoa vang tren co xanh,Nguyen Nhat Anh,2010,7
-B007,Design Patterns,Gang of Four,1994,4
+B001,Lap trinh C++ co ban,Nguyen Thanh Thuy,2020,10,,,0,0,,,0,0
+B002,Cau truc du lieu va Giai thuat,Le Minh Hoang,2015,5,,,0,0,,,0,0
+B003,Dac Nhan Tam,Dale Carnegie,2021,15,,,0,0,,,0,0
+B004,Clean Code,Robert C. Martin,2008,8,,,0,0,,,0,0
+B005,Nha Gia Kim,Paulo Coelho,1988,12,,,0,0,,,0,0
+B006,Toi thay hoa vang tren co xanh,Nguyen Nhat Anh,2010,7,,,0,0,,,0,0
+B007,Design Patterns,Gang of Four,1994,4,,,0,0,,,0,0
