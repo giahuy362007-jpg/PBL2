@@ -44,8 +44,9 @@ bool book_service::save_data() {
         file << b.get_id() << ";" 
              << b.get_title() << ";" 
              << b.get_author() << ";" 
-             << b.get_year() << ";" 
-             << b.get_quantity() << "\n";
+             << b.get_category() << ";"
+             << b.get_quantity() <<  ";" 
+             << b.get_year() <<  "\n";
         curr = curr->get_next();
     }
     file.close();
