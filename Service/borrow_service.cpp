@@ -11,6 +11,10 @@ borrow_service::~borrow_service() {
 
 // --- Tách dòng từ borrow.txt (Định dạng: BorrowID;BookID;UserID;BorrowDate;DueDate;Status) ---
 void borrow_service::parse_line(std::string line, borrow& b) {
+
+    if (!line.empty() && line.back() == '\r') {
+    line.pop_back();
+}
     std::stringstream ss(line);
     std::string id, book_id, user_id, b_date_str, due_date_str, status;
 
@@ -85,17 +89,18 @@ bool borrow_service::create_borrow_ticket(std::string borrow_id, std::string boo
     // Check xem User có tồn tại không
     if (u_service.get_user_by_id(user_id) == nullptr) return false;
 
-    // Check xem Book có tồn tại và còn số lượng không
+        // Check xem Book có tồn tại và còn số lượng không[cite: 63]
     node<book>* book_node = b_service.get_book_by_id(book_id);
     if (book_node == nullptr) return false;
-    book temp = book_node->get_data();
-    book& target_book = temp;
-    if (target_book.get_quantity() <= 0) return false; // Hết sách trong kho
 
-    // Tiến hành trừ số lượng sách trong kho đi 1 đơn vị
-    target_book.set_quantity(target_book.get_quantity() - 1);
+    // Lấy tham chiếu trực tiếp đến đối tượng book bên trong node kho sách[cite: 56, 63]
+    book& target_book = book_node->get_Data();
+    if (target_book.get_quantity() <= 0) return false; // Hết sách trong kho[cite: 63]
 
-    // Tạo phiếu mượn mới với trạng thái ban đầu là "Dang muon"
+    // DÙNG TOÁN TỬ -- ĐỂ TRỪ KHO (Giảm số lượng đi 1)
+    --target_book;
+
+    // Tạo phiếu mượn mới với trạng thái ban đầu là "Dang muon"[cite: 63]
     borrow new_ticket(borrow_id, book_id, user_id, borrow_date, due_date, "Dang muon");
 
     borrow_list.push_back(new_ticket);
@@ -107,28 +112,24 @@ bool borrow_service::create_borrow_ticket(std::string borrow_id, std::string boo
 bool borrow_service::return_book(std::string borrow_id, book_service& b_service) {
     node<borrow>* ticket_node = borrow_index.find(borrow_id);
     if (ticket_node == nullptr) return false;
-    borrow temp = ticket_node->get_data();
-    borrow& ticket = temp;
     
-    // Nếu sách đã trả rồi thì không xử lý nữa
+    // Lấy tham chiếu trực tiếp đến đối tượng borrow nằm bên trong node (Tránh tạo bản sao copy)[cite: 56, 63]
+    borrow& ticket = ticket_node->get_Data();
+    
+    // Nếu sách đã trả rồi thì không xử lý nữa[cite: 63]
     if (ticket.get_status() == "Da tra") return false;
 
-    // Cập nhật trạng thái phiếu thành "Da tra"
+    // Cập nhật trạng thái phiếu thành "Da tra"[cite: 63]
     ticket.set_status("Da tra");
 
-    // Hoàn lại số lượng sách vào kho (+1)
+    /// Hoàn lại số lượng sách vào kho
     node<book>* book_node = b_service.get_book_by_id(ticket.get_book_id());
     if (book_node != nullptr) {
-        // BƯỚC 1: Lấy object sách ra khỏi node
-        book target_book = book_node->get_data(); 
+        book& target_book = book_node->get_Data(); 
         
-        // BƯỚC 2: Tăng số lượng lên 1
-        target_book.set_quantity(target_book.get_quantity() + 1); 
-        
-        // BƯỚC 3: Ghi đè ngược lại vào node trong danh sách liên kết[cite: 9]
-        book_node->set_data(target_book); 
+        // DÙNG TOÁN TỬ ++ ĐỂ HOÀN KHO (Tăng số lượng lên 1)
+        ++target_book; 
     }
-
     return true;
 }
 

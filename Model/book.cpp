@@ -40,3 +40,32 @@ void book::set_quantity(int quantity) {
     }
 }
 void book::set_year(int year) { this->year = year; }
+// Tăng trước (++b)
+book& book::operator++() {
+    quantity++;
+    return *this;
+}
+
+// Tăng sau (b++)
+book book::operator++(int) {
+    book temp = *this;
+    quantity++;
+    return temp;
+}
+
+// Giảm trước (--b) (Có chặn không cho âm)
+book& book::operator--() {
+    if (quantity > 0) {
+        quantity--;
+    }
+    return *this;
+}
+
+// Giảm sau (b--)
+book book::operator--(int) {
+    book temp = *this;
+    if (quantity > 0) {
+        quantity--;
+    }
+    return temp;
+}

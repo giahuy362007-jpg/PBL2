@@ -11,6 +11,10 @@ user_service::~user_service() {
 
 // --- Tách dòng từ user.txt (định dạng: ID;Name;Password;Role) ---
 void user_service::parse_line(std::string line, user& u) {
+
+    if (!line.empty() && line.back() == '\r') {
+    line.pop_back();
+}
     std::stringstream ss(line);
     std::string id, name, password, role;
 

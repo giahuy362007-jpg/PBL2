@@ -143,6 +143,10 @@ void book_service::sort_books(bool (*cmp)(book, book)) {
 }
 // --- Tách dòng từ book.txt (Định dạng: ID;Title;Author;Category;Quantity;Year) ---
 void book_service::parse_line(std::string line, book& b) {
+    
+    if (!line.empty() && line.back() == '\r') {
+    line.pop_back();
+}   
     std::stringstream ss(line);
     std::string id, title, author, category;
     std::string qty_str, year_str;
