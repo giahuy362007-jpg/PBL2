@@ -18,6 +18,9 @@ std::string shift_service::generate_key(date d, std::string session) const {
 
 // --- Tách dòng từ shift.txt (Định dạng: 01/10/2026;sang;AD01,AD02)[cite: 30] ---
 void shift_service::parse_line(std::string line, shift& s) {
+    if (!line.empty() && line.back() == '\r') {
+    line.pop_back();
+}
     std::stringstream ss(line);
     std::string date_str, session, admins_str;
 

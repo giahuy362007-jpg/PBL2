@@ -28,4 +28,10 @@ public:
     void set_category(std::string category);
     void set_quantity(int quantity);
     void set_year(int year);
+
+     // Nạp chồng toán tử tăng/giảm số lượng tồn kho
+    book& operator++();    // Tăng trước (++b)
+    book operator++(int);   // Tăng sau (b++)
+    book& operator--();    // Giảm trước (--b)
+    book operator--(int);   // Giảm sau (b--)
 };
