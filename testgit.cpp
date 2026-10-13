@@ -12,6 +12,7 @@ void show_admin_menu() {
     cout << "3. Dang ky ca truc\n";
     cout << "4. Muon sach\n";
     cout << "5. Tra sach\n";
+    cout << "6. Sua sach\n";
     cout << "0. Dang xuat\n";
     cout << "======================================================\n";
     cout << "Chon chuc nang: ";
@@ -142,6 +143,13 @@ int main() {
                         } else {
                             cout << "[Loi] Tra sach that bai (Khong tim thay ma phieu hoac da tra roi)!\n";
                         }
+                    }
+                    else if(choice == 6)
+                    { 
+                        string b_id;
+                        cout << "Nhap Ma sach: "; cin >> b_id;
+                        book data_b;
+                        cin >> data_b;
                     }
                     else if (choice == 0) {
                         controller.logout();
