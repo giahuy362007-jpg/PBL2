@@ -50,3 +50,10 @@ bool library_controller::register_shift(date d, std::string session, std::string
 bool library_controller::cancel_shift(date d, std::string session, std::string admin_id) {
     return s_service.cancel_shift(d, session, admin_id);
 }
+
+bool library_controller::update_book_info(std::string old_id, std::string new_id, std::string title, std::string author, std::string category, int qty, int year) {
+    // Tạo đối tượng book mang dữ liệu mới
+    book updated_book(new_id, title, author, category, qty, year);
+    // Gọi service xử lý (chỉ sửa thông tin thường)
+    return b_service.update_book(old_id, updated_book);
+}
