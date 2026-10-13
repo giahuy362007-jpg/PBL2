@@ -36,3 +36,23 @@ void borrow::set_user_id(string user_id) { this->user_id = user_id;}
 void borrow::set_borrow_date(date borrow_date) { this->borrow_date = borrow_date; }
 void borrow::set_due_date(date due_date) { this->due_date = due_date; }
 void borrow::set_status(string status) { this->status = status; }
+
+istream& operator>>(istream& in, borrow& b) {
+    cout << "Ma phieu muon: "; getline(in >> ws, b.id);
+    cout << "Ma sach: "; getline(in, b.book_id);
+    cout << "Ma nguoi muon: "; getline(in, b.user_id);
+    cout << "Ngay muon: "; getline(in, b.borrow_date);
+    cout << "Han tra: "; getline(in, b.due_date);
+    cout << "Trang thai: "; getline(in, b.status);
+    return in;
+}
+
+ostream& operator<<(ostream& out, const borrow& b) {
+    out << "Ma phieu muon: " << b.id << '\n'
+        << "Ma sach: " << b.book_id << '\n'
+        << "Ma nguoi muon: " << b.user_id << '\n'
+        << "Ngay muon: " << b.borrow_date << '\n'
+        << "Han tra: " << b.due_date << '\n'
+        << "Trang thai: " << b.status;
+    return out;
+}

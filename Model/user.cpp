@@ -28,3 +28,19 @@ void user::set_id(string id) { this->id = id; }
 void user::set_name(string name) { this->name = name; }
 void user::set_password(string password) { this->password = password; }
 void user::set_role(string role) { this->role = role; }
+
+istream& operator>>(istream& in, user& u) {
+    cout << "Ma nguoi dung: "; getline(in >> ws, u.id);
+    cout << "Ho ten: "; getline(in, u.name);
+    cout << "Mat khau: "; getline(in, u.password);
+    cout << "Vai tro: "; getline(in, u.role);
+    return in;
+}
+
+ostream& operator<<(ostream& out, const user& u) {
+    out << "Ma nguoi dung: " << u.id << '\n'
+        << "Ho ten: " << u.name << '\n'
+        << "Mat khau: [an]" << '\n'
+        << "Vai tro: " << u.role;
+    return out;
+}

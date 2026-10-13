@@ -29,4 +29,7 @@ public:
     void set_borrow_date(date borrow_date);
     void set_due_date(date due_date);
     void set_status(std::string status);
+
+    friend std::istream& operator>>(std::istream& in, borrow& b);
+    friend std::ostream& operator<<(std::ostream& out, const borrow& b);
 };

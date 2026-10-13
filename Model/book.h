@@ -34,4 +34,7 @@ public:
     book operator++(int);   // Tăng sau (b++)
     book& operator--();    // Giảm trước (--b)
     book operator--(int);   // Giảm sau (b--)
+
+    friend std::istream& operator>>(std::istream& in, book& b);
+    friend std::ostream& operator<<(std::ostream& out, const book& b);
 };

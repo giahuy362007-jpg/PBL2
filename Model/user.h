@@ -22,4 +22,7 @@ public:
     void set_name(std::string name);
     void set_password(std::string password);
     void set_role(std::string role);
+
+    friend std::istream& operator>>(std::istream& in, user& u);
+    friend std::ostream& operator<<(std::ostream& out, const user& u);
 };

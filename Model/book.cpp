@@ -69,3 +69,23 @@ book book::operator--(int) {
     }
     return temp;
 }
+istream& operator>>(istream& in, book& b) {
+    cout << "Ma sach: "; getline(in >> ws, b.id);
+    cout << "Ten sach: "; getline(in, b.title);
+    cout << "Tac gia: "; getline(in, b.author);
+    cout << "The loai: "; getline(in, b.category);
+    cout << "So luong: "; in >> b.quantity;
+    while (in && b.quantity < 0) { cout << "So luong phai >= 0, nhap lai: "; in >> b.quantity; }
+    cout << "Nam xuat ban: "; in >> b.year;
+    return in;
+}
+
+ostream& operator<<(ostream& out, const book& b) {
+    out << "Ma sach: " << b.id << '\n'
+        << "Ten sach: " << b.title << '\n'
+        << "Tac gia: " << b.author << '\n'
+        << "The loai: " << b.category << '\n'
+        << "So luong: " << b.quantity << '\n'
+        << "Nam xuat ban: " << b.year;
+    return out;
+}
