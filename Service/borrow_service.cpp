@@ -129,6 +129,7 @@ bool borrow_service::return_book(std::string borrow_id, book_service& b_service)
     }
 
     return true;
+  // huy ne cung
 }
 
     // --- 5. TỰ ĐỘNG KIỂM TRA QUÁ HẠN ---
