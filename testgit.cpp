@@ -150,6 +150,12 @@ int main() {
                         cout << "Nhap Ma sach: "; cin >> b_id;
                         book data_b;
                         cin >> data_b;
+                        if(controller.update_book_info(b_id, data_b) )
+                        {
+                            cout << "[Thanh cong] Sua sach thanh cong!\n";
+                        } else {
+                            cout << "[Loi] Sua sach that bai!\n";
+                        }
                     }
                     else if (choice == 0) {
                         controller.logout();

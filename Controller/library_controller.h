@@ -36,5 +36,5 @@ public:
     bool cancel_shift(date d, std::string session, std::string admin_id);
 
     // --- Nghiệp vụ Cập nhật/Sửa thông tin sách ---
-    bool update_book_info(std::string old_id, std::string new_id, std::string title, std::string author, std::string category, int qty, int year);
+    bool update_book_info(std::string old_id, book book_n);
 };

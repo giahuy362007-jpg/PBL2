@@ -36,4 +36,6 @@ public:
     // 4. Nhóm Tra cứu & Hiển thị
     node<borrow>* get_borrow_by_id(std::string id);
     void display_all();
+
+    // Xoa
 };

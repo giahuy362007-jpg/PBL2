@@ -41,8 +41,8 @@ istream& operator>>(istream& in, borrow& b) {
     cout << "Ma phieu muon: "; getline(in >> ws, b.id);
     cout << "Ma sach: "; getline(in, b.book_id);
     cout << "Ma nguoi muon: "; getline(in, b.user_id);
-    cout << "Ngay muon: "; getline(in, b.borrow_date);
-    cout << "Han tra: "; getline(in, b.due_date);
+    cout << "Ngay muon: "; cin >>  b.borrow_date;
+    cout << "Han tra: "; cin >> b.due_date;
     cout << "Trang thai: "; getline(in, b.status);
     return in;
 }

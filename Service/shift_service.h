@@ -33,4 +33,6 @@ public:
     // 3. Tra cứu ca trực
     node<shift>* get_shift(date shift_date, std::string session);
     void display_all();
+
+    //quan tam
 };
