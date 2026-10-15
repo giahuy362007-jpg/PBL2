@@ -12,7 +12,11 @@ void show_admin_menu() {
     cout << "3. Dang ky ca truc\n";
     cout << "4. Muon sach\n";
     cout << "5. Tra sach\n";
-    cout << "6. Sua sach\n";
+    cout << "6. Sua thong tin sach\n";
+    cout << "7. Xem toan bo lich truc\n";
+    cout << "8. Rut ten khoi ca truc (Huy dang ky ca nhan)\n";
+    cout << "9. Xoa toan bo mot ca truc\n";
+    cout << "10. Tinh luong ca truc (200.000 VND / buoi)\n";
     cout << "0. Dang xuat\n";
     cout << "======================================================\n";
     cout << "Chon chuc nang: ";
@@ -144,18 +148,71 @@ int main() {
                             cout << "[Loi] Tra sach that bai (Khong tim thay ma phieu hoac da tra roi)!\n";
                         }
                     }
-                    else if(choice == 6)
-                    { 
-                        string b_id;
-                        cout << "Nhap Ma sach: "; cin >> b_id;
+                   else if (choice == 6) {
+                        // Sửa sách (Tận dụng toán tử >> của class book)
+                        string old_id;
+                        cout << "Nhap Ma sach (ID) cu can sua: "; 
+                        cin >> old_id;
+
+                        cout << "--- Nhap thong tin moi cho sach ---\n";
                         book data_b;
-                        cin >> data_b;
-                        if(controller.update_book_info(b_id, data_b) )
-                        {
-                            cout << "[Thanh cong] Sua sach thanh cong!\n";
+                        cin >> data_b; // Gọi operator>> đã overload trong book.cpp
+
+                        if (controller.update_book_info(old_id, data_b)) {
+                            cout << "[Thanh cong] Cap nhat thong tin sach thanh cong!\n";
                         } else {
-                            cout << "[Loi] Sua sach that bai!\n";
+                            cout << "[Loi] Cap nhat that bai (Khong tim thay ma cu hoac ma moi bi trung)!\n";
                         }
+                    }
+                    else if (choice == 7) {
+                        // Xem toàn bộ danh sách ca trực
+                        controller.show_all_shifts();
+                    }
+                    else if (choice == 8) {
+                        // Rút tên 1 Admin khỏi ca trực (cancel_shift đã có sẵn trong controller)
+                        int d, m, y;
+                        string session, adm_id;
+                        cout << "Nhap ngay truc (DD MM YYYY): "; cin >> d >> m >> y;
+                        cout << "Nhap ca truc ('sang' hoac 'chieu'): "; cin >> session;
+                        cout << "Nhap Ma Admin can rut ten: "; cin >> adm_id;
+
+                        date shift_date(d, m, y);
+                        if (controller.cancel_shift(shift_date, session, adm_id)) {
+                            cout << "[Thanh cong] Da rut ten Admin " << adm_id << " khoi ca truc!\n";
+                        } else {
+                            cout << "[Loi] Khong tim thay ca truc hoac Admin khong co trong ca nay!\n";
+                        }
+                    }
+                    else if (choice == 9) {
+                        // Xóa toàn bộ ca trực (Hủy cả buổi trực)
+                        int d, m, y;
+                        string session;
+                        cout << "Nhap ngay truc can xoa (DD MM YYYY): "; cin >> d >> m >> y;
+                        cout << "Nhap ca truc can xoa ('sang' hoac 'chieu'): "; cin >> session;
+
+                        date shift_date(d, m, y);
+                        if (controller.delete_shift(shift_date, session)) {
+                            cout << "[Thanh cong] Da xoa toan bo ca truc (" << session << " - " << shift_date << ")!\n";
+                        } else {
+                            cout << "[Loi] Khong tim thay ca truc nay de xoa!\n";
+                        }
+                    }
+                    else if (choice == 10) {
+                        // Tính lương theo số buổi trực (200.000 VNĐ/buổi)
+                        string adm_id;
+                        int month, year;
+                        cout << "Nhap Ma Admin/Manager can tinh luong: "; cin >> adm_id;
+                        cout << "Nhap thang can tinh (Nhap 0 neu muon tinh tat ca cac thang): "; cin >> month;
+                        cout << "Nhap nam can tinh (Nhap 0 neu muon tinh tat ca cac nam): "; cin >> year;
+
+                        long long salary = controller.get_admin_salary(adm_id, month, year);
+                        int num_shifts = salary / 200000;
+
+                        cout << "\n--- KET QUA TINH LUONG ---\n";
+                        cout << "- Ma nhan vien: " << adm_id << "\n";
+                        cout << "- Tong so buoi da truc: " << num_shifts << " buoi\n";
+                        cout << "- Don gia: 200,000 VND / buoi\n";
+                        cout << "=> TONG LUONG: " << salary << " VND\n";
                     }
                     else if (choice == 0) {
                         controller.logout();

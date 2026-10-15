@@ -37,4 +37,10 @@ public:
 
     // --- Nghiệp vụ Cập nhật/Sửa thông tin sách ---
     bool update_book_info(std::string old_id, book book_n);
+
+
+    //Nghiệp vụ tính lương
+    bool delete_shift(date d, std::string session);
+    long long get_admin_salary(std::string admin_id, int month = 0, int year = 0);
+    void show_all_shifts();
 };

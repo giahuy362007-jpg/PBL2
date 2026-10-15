@@ -55,3 +55,16 @@ bool library_controller::update_book_info(std::string old_id, book book_n) {
     // Gọi service xử lý (chỉ sửa thông tin thường)
     return b_service.update_book(old_id, book_n);
 }
+
+//shift
+bool library_controller::delete_shift(date d, std::string session) {
+    return s_service.delete_entire_shift(d, session);
+}
+
+long long library_controller::get_admin_salary(std::string admin_id, int month, int year) {
+    return s_service.calculate_salary(admin_id, month, year, 200000);
+}
+
+void library_controller::show_all_shifts() {
+    s_service.display_all();
+}

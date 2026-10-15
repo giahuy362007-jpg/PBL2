@@ -34,5 +34,9 @@ public:
     node<shift>* get_shift(date shift_date, std::string session);
     void display_all();
 
-    //quan tam
+    // 4. Các chức năng mở rộng (Tính lương, Xóa ca, Thống kê)
+    bool delete_entire_shift(date shift_date, std::string session);
+    int count_shifts_by_admin(std::string admin_id, int month = 0, int year = 0) const;
+    long long calculate_salary(std::string admin_id, int month = 0, int year = 0, long long rate_per_shift = 200000) const;
+    linked_list<shift> get_shifts_by_admin(std::string admin_id) const;
 };
