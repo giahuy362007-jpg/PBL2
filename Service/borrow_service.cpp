@@ -77,38 +77,40 @@ void borrow_service::parse_line(std::string line, borrow& b) {
         return true;
     }
 
-    // --- 3. TẠO PHIẾU MƯỢN SÁCH ---
-    bool borrow_service::create_borrow_ticket(std::string borrow_id, std::string book_id, std::string user_id, date borrow_date, date due_date, book_service& b_service, user_service& u_service) {
-        // Check trùng mã phiếu mượn O(1)
-        if (borrow_index.find(borrow_id) != nullptr) return false;
+    // --- 3. TẠO PHIẾU MƯỢN SÁCH (Dùng toán tử --) ---
+bool borrow_service::create_borrow_ticket(std::string borrow_id, std::string book_id, std::string user_id, date borrow_date, date due_date, book_service& b_service, user_service& u_service) {
+    // Check trùng mã phiếu mượn O(1)
+    if (borrow_index.find(borrow_id) != nullptr) return false;
 
-        // Check xem User có tồn tại không
-        if (u_service.get_user_by_id(user_id) == nullptr) return false;
+    // Check xem User có tồn tại không
+    if (u_service.get_user_by_id(user_id) == nullptr) return false;
 
     // Check xem Book có tồn tại và còn số lượng không
     node<book>* book_node = b_service.get_book_by_id(book_id);
     if (book_node == nullptr) return false;
-    book temp = book_node->get_data();
-    book& target_book = temp;
+
+    // Lấy tham chiếu trực tiếp đến đối tượng book bên trong node kho sách
+    book& target_book = book_node->get_Data();
     if (target_book.get_quantity() <= 0) return false; // Hết sách trong kho
 
-    // Tiến hành trừ số lượng sách trong kho đi 1 đơn vị
-    target_book.set_quantity(target_book.get_quantity() - 1);
+    // DÙNG TOÁN TỬ -- ĐỂ TRỪ KHO TRỰC TIẾP TRÊN RAM
+    --target_book;
 
     // Tạo phiếu mượn mới với trạng thái ban đầu là "Dang muon"
     borrow new_ticket(borrow_id, book_id, user_id, borrow_date, due_date, "Dang muon");
 
-        borrow_list.push_back(new_ticket);
-        borrow_index.insert(borrow_id, borrow_list.get_tail());
-        return true;
-    }
+    borrow_list.push_back(new_ticket);
+    borrow_index.insert(borrow_id, borrow_list.get_tail());
+    return true;
+}
 
-// --- 4. TRẢ SÁCH (Đã sửa lại cách cập nhật số lượng) ---
+// --- 4. TRẢ SÁCH (Dùng toán tử ++) ---
 bool borrow_service::return_book(std::string borrow_id, book_service& b_service) {
     node<borrow>* ticket_node = borrow_index.find(borrow_id);
     if (ticket_node == nullptr) return false;
-    borrow temp = ticket_node->get_data();
-    borrow& ticket = temp;
+    
+    // Lấy tham chiếu trực tiếp đến đối tượng borrow nằm bên trong node
+    borrow& ticket = ticket_node->get_Data();
     
     // Nếu sách đã trả rồi thì không xử lý nữa
     if (ticket.get_status() == "Da tra") return false;
@@ -119,19 +121,15 @@ bool borrow_service::return_book(std::string borrow_id, book_service& b_service)
     // Hoàn lại số lượng sách vào kho (+1)
     node<book>* book_node = b_service.get_book_by_id(ticket.get_book_id());
     if (book_node != nullptr) {
-        // BƯỚC 1: Lấy object sách ra khỏi node
-        book target_book = book_node->get_data(); 
+        // Lấy tham chiếu trực tiếp đến đối tượng book trong node kho sách
+        book& target_book = book_node->get_Data(); 
         
-        // BƯỚC 2: Tăng số lượng lên 1
-        target_book.set_quantity(target_book.get_quantity() + 1); 
-        
-        // BƯỚC 3: Ghi đè ngược lại vào node trong danh sách liên kết[cite: 9]
-        book_node->set_data(target_book); 
+        // DÙNG TOÁN TỬ ++ ĐỂ HOÀN KHO TRỰC TIẾP TRÊN RAM
+        ++target_book; 
     }
 
     return true;
 }
-
     // --- 5. TỰ ĐỘNG KIỂM TRA QUÁ HẠN ---
     void borrow_service::check_and_update_overdue(date current_date) {
         node<borrow>* curr = borrow_list.get_head();

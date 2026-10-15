@@ -147,3 +147,80 @@ node<shift>* shift_service::get_shift(date shift_date, std::string session) {
     std::string key = generate_key(shift_date, session);
     return shift_index.find(key);
 }
+// --- 6. XÓA TOÀN BỘ CA TRỰC (Dành cho Manager hủy lịch trực ngày lễ/đột xuất) ---
+bool shift_service::delete_entire_shift(date shift_date, std::string session) {
+    std::string key = generate_key(shift_date, session);
+    node<shift>* target = shift_index.find(key);
+    
+    if (target == nullptr) return false; // Không tồn tại ca trực này
+
+    // Xóa khỏi bảng băm và danh sách liên kết
+    shift_index.remove(key);
+    shift_list.remove_node(target);
+    return true;
+}
+
+// --- 7. ĐẾM SỐ BUỔI TRỰC CỦA ADMIN (Hỗ trợ lọc theo tháng/năm, mặc định 0 là tính tất cả) ---
+int shift_service::count_shifts_by_admin(std::string admin_id, int month, int year) const {
+    int count = 0;
+    node<shift>* curr = shift_list.get_head();
+
+    while (curr != nullptr) {
+        shift s = curr->get_data();
+        date d = s.get_shift_date();
+
+        // Kiểm tra khớp tháng và năm (nếu người dùng truyền vào > 0)
+        bool match_time = true;
+        if (month > 0 && d.get_month() != month) match_time = false;
+        if (year > 0 && d.get_year() != year) match_time = false;
+
+        // Nếu khớp thời gian và có mặt admin trong ca đó (dùng hàm has_admin của class shift)
+        if (match_time && s.has_admin(admin_id)) {
+            count++;
+        }
+        curr = curr->get_next();
+    }
+    return count;
+}
+
+// --- 8. TÍNH LƯƠNG CA TRỰC (Mặc định: 200.000 VNĐ / 1 buổi) ---
+long long shift_service::calculate_salary(std::string admin_id, int month, int year, long long rate_per_shift) const {
+    int total_shifts = count_shifts_by_admin(admin_id, month, year);
+    return total_shifts * rate_per_shift;
+}
+
+// --- 9. LẤY DANH SÁCH LỊCH TRỰC CỦA RIÊNG 1 ADMIN ---
+linked_list<shift> shift_service::get_shifts_by_admin(std::string admin_id) const {
+    linked_list<shift> result;
+    node<shift>* curr = shift_list.get_head();
+
+    while (curr != nullptr) {
+        shift s = curr->get_data();
+        if (s.has_admin(admin_id)) {
+            result.push_back(s);
+        }
+        curr = curr->get_next();
+    }
+    return result;
+}
+
+// --- 10. HIỂN THỊ TOÀN BỘ LỊCH TRỰC ---
+void shift_service::display_all() {
+    node<shift>* curr = shift_list.get_head();
+    if (curr == nullptr) {
+        std::cout << "Hien chua co lich truc nao!\n";
+        return;
+    }
+
+    std::cout << "\n================ DANH SACH CA TRUC ================\n";
+    while (curr != nullptr) {
+        shift s = curr->get_data();
+        date d = s.get_shift_date();
+        std::cout << "- Ngay: " << d << " (" << d.get_day_of_week() << ")"
+                  << " | Ca: " << s.get_session()
+                  << " | So luong: " << s.get_current_count() << "/4"
+                  << " | Admin: " << s.get_all_admins_string() << "\n";
+        curr = curr->get_next();
+    }
+    std::cout << "===================================================\n";
+}
