@@ -130,6 +130,7 @@ bool borrow_service::return_book(std::string borrow_id, book_service& b_service)
 
     return true;
 }
+
     // --- 5. TỰ ĐỘNG KIỂM TRA QUÁ HẠN ---
     void borrow_service::check_and_update_overdue(date current_date) {
         node<borrow>* curr = borrow_list.get_head();
@@ -144,7 +145,7 @@ bool borrow_service::return_book(std::string borrow_id, book_service& b_service)
         }
     }
 
-    // --- 6. TRA CỨU NHANH THEO ID ---
-    node<borrow>* borrow_service::get_borrow_by_id(std::string id) {
-        return borrow_index.find(id);
-    }
+// --- 7. TRA CỨU NHANH THEO ID ---
+node<borrow>* borrow_service::get_borrow_by_id(std::string id) {
+    return borrow_index.find(id);
+}
