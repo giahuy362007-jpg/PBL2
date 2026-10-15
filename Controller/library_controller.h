@@ -30,6 +30,7 @@ public:
     // --- 3. Nghiệp vụ Mượn - Trả sách ---
     bool borrow_book(std::string borrow_id, std::string book_id, std::string user_id, date borrow_date, date due_date);
     bool return_book(std::string borrow_id);
+    bool delete_borrow(std::string borrow_id);
 
     // --- 4. Nghiệp vụ Quản lý Ca trực ---
     bool register_shift(date d, std::string session, std::string admin_id);

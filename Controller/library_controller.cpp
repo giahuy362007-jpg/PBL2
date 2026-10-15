@@ -68,3 +68,7 @@ long long library_controller::get_admin_salary(std::string admin_id, int month, 
 void library_controller::show_all_shifts() {
     s_service.display_all();
 }
+
+bool library_controller::delete_borrow(std::string borrow_id) {
+    return br_service.delete_borrow_ticket(borrow_id);
+}

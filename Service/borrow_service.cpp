@@ -11,6 +11,9 @@
 
 // --- Tách dòng từ borrow.txt (Định dạng: BorrowID;BookID;UserID;BorrowDate;DueDate;Status) ---
 void borrow_service::parse_line(std::string line, borrow& b) {
+    if (!line.empty() && line.back() == '\r') {
+        line.pop_back();
+    }
     std::stringstream ss(line);
     std::string id, book_id, user_id, b_date_str, due_date_str, status;
 
@@ -88,7 +91,7 @@ bool borrow_service::create_borrow_ticket(std::string borrow_id, std::string boo
     // Check xem Book có tồn tại và còn số lượng không
     node<book>* book_node = b_service.get_book_by_id(book_id);
     if (book_node == nullptr) return false;
-
+    if (due_date < borrow_date) return false; // Ngày hẹn trả không được trước ngày mượn
     // Lấy tham chiếu trực tiếp đến đối tượng book bên trong node kho sách
     book& target_book = book_node->get_Data();
     if (target_book.get_quantity() <= 0) return false; // Hết sách trong kho
@@ -149,4 +152,24 @@ bool borrow_service::return_book(std::string borrow_id, book_service& b_service)
 // --- 7. TRA CỨU NHANH THEO ID ---
 node<borrow>* borrow_service::get_borrow_by_id(std::string id) {
     return borrow_index.find(id);
+}
+
+// --- XÓA PHIẾU MƯỢN ---
+bool borrow_service::delete_borrow_ticket(std::string borrow_id) {
+    // 1. Tìm node phiếu mượn qua bảng băm O(1)
+    node<borrow>* target = borrow_index.find(borrow_id);
+    if (target == nullptr) {
+        return false; // Không tìm thấy mã phiếu
+    }
+    if (target->get_Data().get_status() == "Dang muon") {
+    // Có thể return false nếu quy định: Sách phải được trả ("Da tra") mới cho phép xóa lịch sử phiếu mượn
+    return false; 
+}
+    // 2. Xóa chỉ mục trên Bảng băm trước
+    borrow_index.remove(borrow_id);
+
+    // 3. Xóa node khỏi Danh sách liên kết kép
+    borrow_list.remove_node(target);
+
+    return true;
 }

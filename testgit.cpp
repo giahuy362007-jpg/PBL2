@@ -3,7 +3,69 @@
 #include "Controller/library_controller.h"
 
 using namespace std;
+#include <limits>
 
+// 1. Ràng buộc nhập số nguyên trong khoảng [min_val, max_val]
+int input_int(string prompt, int min_val = 0, int max_val = 2147483647) {
+    int value;
+    while (true) {
+        cout << prompt;
+        if (cin >> value && value >= min_val && value <= max_val) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Xóa bộ đệm
+            return value;
+        }
+        cout << "[Loi] Du lieu khong hop le (Phai la so tu " << min_val << " den " << max_val << ")! Vui long nhap lai.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+}
+
+// 2. Ràng buộc nhập chuỗi không được để trống
+string input_string(string prompt) {
+    string str;
+    while (true) {
+        cout << prompt;
+        getline(cin >> ws, str);
+        if (!str.empty()) {
+            return str;
+        }
+        cout << "[Loi] Truong nay khong duoc de trong! Vui long nhap lai.\n";
+    }
+}
+
+// 3. Ràng buộc nhập ca trực (chỉ chấp nhận "sang" hoặc "chieu")
+string input_session(string prompt) {
+    string session;
+    while (true) {
+        cout << prompt;
+        cin >> session;
+        if (session == "sang" || session == "chieu") {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return session;
+        }
+        cout << "[Loi] Ca truc chi duoc nhap 'sang' hoac 'chieu'! Vui long nhap lai.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+}
+
+// 4. Ràng buộc nhập ngày tháng hợp lệ
+date input_valid_date(string prompt) {
+    while (true) {
+        cout << prompt;
+        int d, m, y;
+        if (cin >> d >> m >> y) {
+            date dt(d, m, y);
+            if (dt.is_valid()) { // Sử dụng hàm is_valid() có sẵn trong class date
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                return dt;
+            }
+        }
+        cout << "[Loi] Ngay thang khong ton tai hoac sai dinh dang! Vui long nhap lai.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+}
 // Menu dành cho Admin hoặc Manager
 void show_admin_menu() {
     cout << "\n================ ADMIN / MANAGER MENU ================\n";
