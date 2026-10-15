@@ -132,21 +132,33 @@ bool borrow_service::return_book(std::string borrow_id, book_service& b_service)
     return true;
 }
 
-    // --- 5. TỰ ĐỘNG KIỂM TRA QUÁ HẠN ---
-    void borrow_service::check_and_update_overdue(date current_date) {
-        node<borrow>* curr = borrow_list.get_head();
-        while (curr != nullptr) {
-            borrow& ticket = curr->get_Data();
+// --- 5. Xóa phiếu mượn theo ID
+bool borrow_service::delete_borrow_ticket(std::string borrow_id) {
+    node<borrow>* target = borrow_index.find(borrow_id);
 
-            // Nếu phiếu đang mượn và ngày hiện tại vượt quá ngày hẹn trả (dùng toán tử > đã overload ở class date)
-            if (ticket.get_status() == "Dang muon" && current_date > ticket.get_due_date()) {
-                ticket.set_status("Qua han");
-            }
-            curr = curr->get_next();
+    if (target == nullptr)
+        return false;
+
+    borrow_index.remove(borrow_id);
+    borrow_list.remove_node(target);
+
+    return save_data();
+}
+
+// --- 6. TỰ ĐỘNG KIỂM TRA QUÁ HẠN ---
+void borrow_service::check_and_update_overdue(date current_date) {
+    node<borrow>* curr = borrow_list.get_head();
+    while (curr != nullptr) {
+        borrow& ticket = curr->get_Data();
+        // Nếu phiếu đang mượn và ngày hiện tại vượt quá ngày hẹn trả (dùng toán tử > đã overload ở class date)
+        if (ticket.get_status() == "Dang muon" && current_date > ticket.get_due_date()) {
+            ticket.set_status("Qua han");
         }
+        curr = curr->get_next();
     }
+}
 
-    // --- 6. TRA CỨU NHANH THEO ID ---
-    node<borrow>* borrow_service::get_borrow_by_id(std::string id) {
-        return borrow_index.find(id);
-    }
+// --- 7. TRA CỨU NHANH THEO ID ---
+node<borrow>* borrow_service::get_borrow_by_id(std::string id) {
+    return borrow_index.find(id);
+}
