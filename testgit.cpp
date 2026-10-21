@@ -65,7 +65,7 @@ date input_valid_date(string prompt) {
 // ================= GIAO DIỆN MENU PHÂN QUYỀN =================
 void show_manager_menu() {
     cout << "\n==================== MANAGER MENU (TOAN QUYEN) ====================\n";
-    cout << "--- QUAN LY SÁCH ---\n";
+    cout << "--- QUAN LY SACH ---\n";
     cout << " 1. Tra cuu sach (Goi y sach lien quan)\n";
     cout << " 2. Them sach moi vao kho\n";
     cout << " 3. Sua thong tin sach\n";

@@ -8,6 +8,38 @@ linked_list<t>::linked_list() {
 }
 
 template <typename t>
+linked_list<t>::linked_list(const linked_list<t>& other) {
+    head = nullptr;
+    tail = nullptr;
+    size = 0;
+
+    node<t>* curr = other.head;
+
+    while (curr != nullptr) {
+        push_back(curr->get_data());
+        curr = curr->get_next();
+    }
+}
+
+template <typename t>
+linked_list<t>& linked_list<t>::operator=(const linked_list<t>& other) {
+    if (this == &other) {
+        return *this;
+    }
+
+    clear();
+
+    node<t>* curr = other.head;
+
+    while (curr != nullptr) {
+        push_back(curr->get_data());
+        curr = curr->get_next();
+    }
+
+    return *this;
+}
+
+template <typename t>
 linked_list<t>::~linked_list() {
     clear();
 }
