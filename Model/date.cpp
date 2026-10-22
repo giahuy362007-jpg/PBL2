@@ -120,6 +120,16 @@ date date::operator++(int) {
     return temp;
 }
 
+date date::add_days(int days) const {
+    date result = *this;
+
+    for (int i = 0; i < days; i++) {
+        ++result;
+    }
+
+    return result;
+}
+
 bool date::operator==(const date& other) const {
     return day == other.day &&
            month == other.month &&

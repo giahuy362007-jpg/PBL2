@@ -12,13 +12,13 @@ class library_controller {
 private:
     // Thêm struct này ở trên class library_controller trong library_controller.h
     struct book_location {
-    std::string book_id;
-    std::string category;
-    std::string shelf;
+        std::string book_id;
+        std::string category;
+        std::string shelf;
 
-    book_location() : book_id(""), category(""), shelf("") {}
-    book_location(std::string id, std::string cat, std::string sh) 
-        : book_id(id), category(cat), shelf(sh) {}
+        book_location() : book_id(""), category(""), shelf("") {}
+        book_location(std::string id, std::string cat, std::string sh) 
+            : book_id(id), category(cat), shelf(sh) {}
     };
     book_service b_service;
     user_service u_service;
@@ -56,11 +56,14 @@ public:
     bool update_book_info(std::string old_id, book book_n);
     bool delete_book(std::string id);
     node<book>* get_book_by_id(std::string id);
+    //Lọc phiếu mượn
+    linked_list<borrow> filter_borrows_by_date(date start_date, date end_date);
 
     // ================= 3. NGHIỆP VỤ MƯỢN - TRẢ (BORROW) =================
     bool borrow_book(std::string borrow_id, std::string book_id, std::string user_id, date borrow_date, date due_date);
     bool return_book(std::string borrow_id);
     bool delete_borrow(std::string borrow_id);
+    linked_list<borrow> get_my_borrows(std::string user_id, bool active_only);
 
     // ================= 4. HÀNG ĐỢI ĐĂNG KÝ SÁCH CỦA USER (QUEUE) =================
     bool register_book_request(std::string req_id, std::string book_id, std::string user_id, date b_date, date due_date);
