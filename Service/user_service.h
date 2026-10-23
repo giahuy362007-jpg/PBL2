@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include "../Model/user.h"
+#include "file_helper.h"
 #include "../Structure/linked_list.h"
 #include "../Structure/hash_table.h"
 #include "../Algorithm/search_algo.h"

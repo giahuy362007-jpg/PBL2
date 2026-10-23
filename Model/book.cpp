@@ -2,9 +2,7 @@
 
 using namespace std;
 
-// constructors
-book::book() {
-    this->id = "";
+book::book() : library_entity("") {
     this->title = "";
     this->author = "";
     this->category = "";
@@ -12,8 +10,8 @@ book::book() {
     this->year = 0;
 }
 
-book::book(string id, string title, string author, string category, int quantity, int year) {
-    this->id = id;
+book::book(string id, string title, string author, string category, int quantity, int year) 
+    : library_entity(id) {
     this->title = title;
     this->author = author;
     this->category = category;
@@ -21,16 +19,12 @@ book::book(string id, string title, string author, string category, int quantity
     this->year = year;
 }
 
-// getters
-string book::get_id() const { return id; }
 string book::get_title() const { return title; }
 string book::get_author() const { return author; }
 string book::get_category() const { return category; }
 int book::get_quantity() const { return quantity; }
 int book::get_year() const { return year; }
 
-// setters
-void book::set_id(string id) { this->id = id; }
 void book::set_title(string title) { this->title = title; }
 void book::set_author(string author) { this->author = author; }
 void book::set_category(string category) { this->category = category; }
@@ -41,20 +35,17 @@ void book::set_quantity(int quantity) {
 }
 void book::set_year(int year) { this->year = year; }
 
-// Tăng trước (++b)
 book& book::operator++() {
     quantity++;
     return *this;
 }
 
-// Tăng sau (b++)
 book book::operator++(int) {
     book temp = *this;
     quantity++;
     return temp;
 }
 
-// Giảm trước (--b) (Có chặn không cho âm)
 book& book::operator--() {
     if (quantity > 0) {
         quantity--;
@@ -62,7 +53,6 @@ book& book::operator--() {
     return *this;
 }
 
-// Giảm sau (b--)
 book book::operator--(int) {
     book temp = *this;
     if (quantity > 0) {
@@ -71,18 +61,22 @@ book book::operator--(int) {
     return temp;
 }
 
+string book::get_entity_type() const {
+    return "BOOK";
+}
+    
+string book::to_record_string() const {
+    return id + ";" + title + ";" + author + ";" + category + ";" + to_string(quantity) + ";" + to_string(year);
+}
+
 istream& operator>>(istream& in, book& b) {
     cout << "Ma sach: "; getline(in >> ws, b.id);
     cout << "Ten sach: "; getline(in, b.title);
     cout << "Tac gia: "; getline(in, b.author);
     cout << "The loai: "; getline(in, b.category);
     cout << "So luong: "; in >> b.quantity;
-    while (in && b.quantity < 0) { 
-        cout << "So luong phai >= 0, nhap lai: "; 
-        in >> b.quantity; 
-    }
+    while (in && b.quantity < 0) { cout << "So luong phai >= 0, nhap lai: "; in >> b.quantity; }
     cout << "Nam xuat ban: "; in >> b.year;
-    in.ignore(10000, '\n');
     return in;
 }
 

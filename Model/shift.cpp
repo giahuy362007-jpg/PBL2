@@ -76,3 +76,10 @@ string shift::get_all_admins_string() const {
     }
     return result;
 }
+#include <sstream> // Đảm bảo có thư viện này ở đầu file hoặc trước hàm
+
+std::string shift::to_record_string() const {
+    std::stringstream ss;
+    ss << shift_date << ";" << session << ";" << get_all_admins_string();
+    return ss.str();
+}

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include "../Model/borrow.h"
+#include "file_helper.h"
 #include "../Structure/linked_list.h"
 #include "../Structure/hash_table.h"
 #include "book_service.h" // Phối hợp để trừ/cộng số lượng sách trong kho

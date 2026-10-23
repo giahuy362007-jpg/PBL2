@@ -26,4 +26,6 @@ public:
     bool has_admin(std::string admin_id) const;
 
     std::string get_all_admins_string() const; 
+
+    std::string to_record_string() const;
 };

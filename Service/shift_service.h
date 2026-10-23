@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include "../Model/shift.h"
+#include "file_helper.h"
 #include "../Structure/linked_list.h"
 #include "../Structure/hash_table.h"
 #include "user_service.h" // Phối hợp kiểm tra danh tính Admin
@@ -40,4 +41,6 @@ public:
     long long calculate_salary(std::string admin_id, int month = 0, int year = 0, long long rate_per_shift = 200000) const;
     linked_list<shift> get_shifts_by_admin(std::string admin_id) const;
     bool has_shifts(std::string admin_id) const;
+
+    std::string to_record_string() const;
 };

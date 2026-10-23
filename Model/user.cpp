@@ -2,42 +2,79 @@
 
 using namespace std;
 
-// constructors
-user::user() {
-    this->id = "";
-    this->name = "";
-    this->password = "";
-    this->role = ""; 
+void user::update_permission_strategy() {
+    delete permission_strategy;
+    permission_strategy = permission_factory::create(this->role);
 }
 
-user::user(string id, string name, string password, string role) {
-    this->id = id;
-    this->name = name;
-    this->password = password;
-    this->role = role;
+user::user() : library_entity(""), name(""), password(""), role("user"), permission_strategy(nullptr) {
+    update_permission_strategy();
 }
 
-// getters
-string user::get_id() const { return id; }
+user::user(string id, string name, string password, string role) 
+    : library_entity(id), name(name), password(password), role(role), permission_strategy(nullptr) {
+    update_permission_strategy();
+}
+
+user::user(const user& other) 
+    : library_entity(other.id), name(other.name), password(other.password), role(other.role), permission_strategy(nullptr) {
+    update_permission_strategy();
+}
+
+user& user::operator=(const user& other) {
+    if (this != &other) {
+        this->id = other.id;
+        this->name = other.name;
+        this->password = other.password;
+        this->role = other.role;
+        update_permission_strategy();
+    }
+    return *this;
+}
+
+user::~user() {
+    delete permission_strategy;
+}
+
 string user::get_name() const { return name; }
 string user::get_password() const { return password; }
 string user::get_role() const { return role; }
 
-// setters
-void user::set_id(string id) { this->id = id; }
 void user::set_name(string name) { this->name = name; }
 void user::set_password(string password) { this->password = password; }
-void user::set_role(string role) { this->role = role; }
+void user::set_role(string role) { 
+    this->role = role; 
+    update_permission_strategy();
+}
+
+void user::display_role_menu() const {
+    if (permission_strategy != nullptr) {
+        permission_strategy->show_menu(this->name);
+    }
+}
+
+int user::get_max_menu_option() const {
+    return (permission_strategy != nullptr) ? permission_strategy->get_max_menu_choice() : 0;
+}
+
+bool user::has_user_management_privilege() const {
+    return (permission_strategy != nullptr) ? permission_strategy->can_manage_users() : false;
+}
+
+string user::get_entity_type() const {
+    return "USER";
+}
+
+string user::to_record_string() const {
+    return id + ";" + name + ";" + password + ";" + role;
+}
 
 istream& operator>>(istream& in, user& u) {
     cout << "Ma nguoi dung: "; getline(in >> ws, u.id);
     cout << "Ho ten: "; getline(in, u.name);
     cout << "Mat khau: "; getline(in, u.password);
-    while (true) {
-        cout << "Vai tro ('manager', 'admin', 'user'): "; getline(in, u.role);
-        if (u.role == "manager" || u.role == "admin" || u.role == "user") break;
-        cout << "[Loi] Vai tro khong hop le! Chi duoc chon 'manager', 'admin' hoac 'user'. Vui long nhap lai.\n";
-    }
+    cout << "Vai tro: "; getline(in, u.role);
+    u.update_permission_strategy();
     return in;
 }
 

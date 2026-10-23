@@ -62,22 +62,7 @@ bool borrow_service::load_data() {
 
 // --- 2. GHI DỮ LIỆU XUỐNG FILE ---
 bool borrow_service::save_data() {
-    std::ofstream file(data_file, std::ios::trunc);
-    if (!file.is_open()) return false;
-
-    node<borrow>* curr = borrow_list.get_head();
-    while (curr != nullptr) {
-        borrow b = curr->get_data();
-        file << b.get_id() << ";" 
-            << b.get_book_id() << ";" 
-            << b.get_user_id() << ";" 
-            << b.get_borrow_date() << ";" 
-            << b.get_due_date() << ";" 
-            << b.get_status() << "\n";
-        curr = curr->get_next();
-    }
-    file.close();
-    return true;
+    return file_helper::save_list_to_file(data_file, borrow_list);
 }
 
 // --- 3. TẠO PHIẾU MƯỢN SÁCH (Dùng toán tử --) ---

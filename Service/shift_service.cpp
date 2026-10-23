@@ -72,21 +72,8 @@ bool shift_service::load_data() {
 
 // --- 2. GHI DỮ LIỆU XUỐNG FILE ---
 bool shift_service::save_data() {
-    std::ofstream file(data_file, std::ios::trunc);
-    if (!file.is_open()) return false;
-
-    node<shift>* curr = shift_list.get_head();
-    while (curr != nullptr) {
-        shift s = curr->get_data();
-        file << s.get_shift_date() << ";" 
-             << s.get_session() << ";" 
-             << s.get_all_admins_string() << "\n";
-        curr = curr->get_next();
-    }
-    file.close();
-    return true;
+    return file_helper::save_list_to_file(data_file, shift_list);
 }
-
 // --- 3. ĐĂNG KÝ CA TRỰC CHO ADMIN ---
 bool shift_service::register_shift(date shift_date, std::string session, std::string admin_id, user_service& u_service) {
     // Kiểm tra xem user có tồn tại và có phải là admin/manager không
@@ -242,4 +229,10 @@ void shift_service::display_all() {
         curr = curr->get_next();
     }
     std::cout << "===================================================\n";
+}
+
+string shift::to_record_string() const {
+    stringstream ss;
+    ss << shift_date << ";" << session << ";" << get_all_admins_string();
+    return ss.str();
 }

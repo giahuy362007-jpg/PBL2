@@ -47,20 +47,7 @@ bool user_service::load_data() {
 
 // --- 2. GHI DỮ LIỆU XUỐNG FILE ---
 bool user_service::save_data() {
-    std::ofstream file(data_file, std::ios::trunc);
-    if (!file.is_open()) return false;
-
-    node<user>* curr = user_list.get_head();
-    while (curr != nullptr) {
-        user u = curr->get_data();
-        file << u.get_id() << ";" 
-             << u.get_name() << ";" 
-             << u.get_password() << ";" 
-             << u.get_role() << "\n";
-        curr = curr->get_next();
-    }
-    file.close();
-    return true;
+    return file_helper::save_list_to_file(data_file, user_list);
 }
 
 // --- 3. XÁC THỰC ĐĂNG NHẬP ---

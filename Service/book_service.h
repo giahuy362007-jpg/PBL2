@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include "../Model/book.h"        // Class chứa thông tin thực thể sách
+#include "file_helper.h" // định dạng dữ liệu
 #include "../Structure/linked_list.h" // Cấu trúc lưu trữ chính
 #include "../Structure/hash_table.h"  // Bảng băm tra cứu nhanh
 #include "../Algorithm/search_algo.h" // Thuật toán tìm kiếm chuỗi

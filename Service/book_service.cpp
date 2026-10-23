@@ -34,22 +34,7 @@ bool book_service::load_data() {
 
 // --- 2. GHI DỮ LIỆU XUỐNG FILE ---
 bool book_service::save_data() {
-    std::ofstream file(data_file, std::ios::trunc); // Ghi đè toàn bộ
-    if (!file.is_open()) return false;
-
-    node<book>* curr = book_list.get_head();
-    while (curr != nullptr) {
-        book b = curr->get_data();
-        file << b.get_id() << ";" 
-             << b.get_title() << ";" 
-             << b.get_author() << ";" 
-             << b.get_category() << ";"
-             << b.get_quantity() <<  ";" 
-             << b.get_year() <<  "\n";
-        curr = curr->get_next();
-    }
-    file.close();
-    return true;
+    return file_helper::save_list_to_file(data_file, book_list);
 }
 
 // --- 3. THÊM SÁCH ---
