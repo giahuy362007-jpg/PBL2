@@ -21,8 +21,11 @@ public:
     int get_num_vertices() const;
     t get_vertex_data(int index) const;
     
-    // Lấy ra danh sách các đỉnh kề của một đỉnh
+   // Lấy ra danh sách các đỉnh kề của một đỉnh
     linked_list<int>& get_adj_list(int index) const; 
+
+    // CHÈN VÀO ĐÂY:
+    linked_list<t> get_neighbors(t vertex_data) const;
 
     void clear();
 };

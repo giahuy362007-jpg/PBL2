@@ -48,6 +48,7 @@ void library_controller::save_requests() {
     std::ofstream file(request_file, std::ios::trunc);
     if (!file.is_open()) return;
 
+    queue<borrow> temp_queue;
     while (!book_request_queue.is_empty()) {
         borrow req = book_request_queue.front();
         book_request_queue.pop();
@@ -57,6 +58,12 @@ void library_controller::save_requests() {
              << req.get_borrow_date() << ";"
              << req.get_due_date() << ";"
              << req.get_status() << "\n";
+        temp_queue.push(req);
+    }
+    // Khôi phục lại hàng đợi trên RAM
+    while (!temp_queue.is_empty()) {
+        book_request_queue.push(temp_queue.front());
+        temp_queue.pop();
     }
     file.close();
 }
@@ -202,6 +209,10 @@ bool library_controller::update_user_info(std::string old_id, user updated_user)
 }
 
 bool library_controller::delete_user(std::string id) {
+    // Chặn tự xóa tài khoản đang đăng nhập
+    if (current_logged_in_user != nullptr && current_logged_in_user->get_id() == id) {
+        return false; 
+    }
     return u_service.delete_user(id);
 }
 

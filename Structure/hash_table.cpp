@@ -38,11 +38,11 @@ int hash_table<t>::hash_function(std::string key) const {
     long long p = 31;
     long long p_pow = 1;
     
-    for (char c : key) {
+    for (unsigned char c : key) {
         hash_val = (hash_val + c * p_pow) % capacity;
         p_pow = (p_pow * p) % capacity;
     }
-    return hash_val;
+    return (int)((hash_val % capacity + capacity) % capacity);
 }
 
 // --- Thuật toán Giãn nở tự động ---

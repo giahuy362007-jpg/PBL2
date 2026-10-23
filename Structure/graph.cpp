@@ -59,7 +59,29 @@ template <typename t>
 linked_list<int>& graph<t>::get_adj_list(int index) const {
     return adj_list[index];
 }
-
+template <typename t>
+linked_list<t> graph<t>::get_neighbors(t vertex_data) const {
+    linked_list<t> neighbors;
+    int src_index = -1;
+    
+    // Tìm vị trí của đỉnh trong mảng vertices
+    for (int i = 0; i < num_vertices; i++) {
+        if (vertices[i] == vertex_data) {
+            src_index = i;
+            break;
+        }
+    }
+    // Lấy toàn bộ dữ liệu đỉnh kề đẩy vào danh sách kết quả
+    if (src_index != -1) {
+        node<int>* curr = adj_list[src_index].get_head();
+        while (curr != nullptr) {
+            int neighbor_idx = curr->get_data();
+            neighbors.push_back(vertices[neighbor_idx]);
+            curr = curr->get_next();
+        }
+    }
+    return neighbors;
+}
 template <typename t>
 void graph<t>::clear() {
     delete[] vertices;

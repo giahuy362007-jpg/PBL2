@@ -127,19 +127,9 @@ linked_list<book> book_service::search_books(std::string keyword) {
 
 // --- 8. SẮP XẾP BẰNG MERGE SORT ---
 void book_service::sort_books(bool (*cmp)(book, book)) {
-    // Lấy con trỏ head thực sự của book_list ra để đưa vào Merge Sort
     node<book>* head_ptr = book_list.get_head();
     sort_algo::merge_sort(&head_ptr, cmp);
-    
-    // Cập nhật lại head và tail cho book_list sau khi sort xong
-    book_list.set_head(head_ptr);
-    
-    // Tìm lại tail mới
-    node<book>* temp = head_ptr;
-    while (temp != nullptr && temp->get_next() != nullptr) {
-        temp = temp->get_next();
-    }
-    book_list.set_tail(temp);
+    book_list.update_after_sort(head_ptr);
 }
 // --- Tách dòng từ book.txt (Định dạng: ID;Title;Author;Category;Quantity;Year) ---
 void book_service::parse_line(std::string line, book& b) {

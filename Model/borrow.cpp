@@ -39,11 +39,11 @@ void borrow::set_status(string status) { this->status = status; }
 
 istream& operator>>(istream& in, borrow& b) {
     cout << "Ma phieu muon: "; getline(in >> ws, b.id);
-    cout << "Ma sach: "; getline(in, b.book_id);
-    cout << "Ma nguoi muon: "; getline(in, b.user_id);
-    cout << "Ngay muon: "; cin >>  b.borrow_date;
-    cout << "Han tra: "; cin >> b.due_date;
-    cout << "Trang thai: "; getline(in, b.status);
+    cout << "Ma sach: "; getline(in >> ws, b.book_id);
+    cout << "Ma nguoi muon: "; getline(in >> ws, b.user_id);
+    cout << "Ngay muon (DD MM YYYY): "; in >> b.borrow_date;
+    cout << "Han tra (DD MM YYYY): "; in >> b.due_date;
+    cout << "Trang thai: "; getline(in >> ws, b.status);
     return in;
 }
 

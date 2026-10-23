@@ -32,7 +32,7 @@ public:
         q.push(start_vertex);
         visited.push_back(start_vertex);
 
-        while (!q.empty()) {
+        while (!q.is_empty()) {
             t current = q.front();  // Lấy ra phần tử đầu (lưu ý đổi thành phương thức tương ứng nếu queue của bạn tên khác, vd: peek)
             q.pop();
 
@@ -66,7 +66,7 @@ public:
         s.push(start_vertex);
 
         while (!s.empty()) {
-            t current = s.top();    // Lấy phần tử trên cùng
+            t current = s.peek();    // Lấy phần tử trên cùng
             s.pop();
 
             // Khác với BFS, DFS nhét vào stack rồi mới kiểm tra visited lúc lấy ra
