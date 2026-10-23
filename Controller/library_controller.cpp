@@ -157,6 +157,10 @@ bool library_controller::delete_borrow(std::string borrow_id) {
     return br_service.delete_borrow_ticket(borrow_id);
 }
 
+node<borrow>* library_controller::get_borrow_by_id(std::string id) {
+    return br_service.get_borrow_by_id(id);
+}
+
 linked_list<borrow> library_controller::get_my_borrows(std::string user_id, bool active_only) {
     return br_service.get_borrows_by_user(user_id, active_only);
 }
@@ -275,7 +279,7 @@ void library_controller::show_all_shifts() {
     s_service.display_all();
 }
 
-// ================= 6. QUẢN LÝ TÀI KHOẢN (MANAGER) =================
+// ================= 6. QUẢN LÝ NGƯỜI DÙNG (USER CRUD - MANAGER) =================
 bool library_controller::add_new_user(std::string id, std::string name, std::string password, std::string role) {
     user new_u(id, name, password, role);
     return u_service.add_user(new_u);

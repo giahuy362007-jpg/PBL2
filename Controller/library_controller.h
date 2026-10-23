@@ -65,6 +65,7 @@ public:
     bool borrow_book(std::string borrow_id, std::string book_id, std::string user_id, date borrow_date, date due_date);
     bool return_book(std::string borrow_id);
     bool delete_borrow(std::string borrow_id);
+    node<borrow>* get_borrow_by_id(std::string id);
     linked_list<borrow> get_my_borrows(std::string user_id, bool active_only);
     void check_system_overdue(); // Tự động cập nhật phiếu quá hạn theo ngày thực tế
 

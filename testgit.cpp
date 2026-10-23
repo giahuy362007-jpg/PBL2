@@ -75,6 +75,13 @@ int input_borrow_duration() {
     return 30;
 }
 
+// ================= HÀM XÁC NHẬN HÀNH ĐỘNG (CONFIRMATION PROMPT) =================
+bool confirm_action(string message) {
+    cout << "\n[XAC NHAN] " << message << " (1: Dong y | 0: Huy bo): ";
+    int choice = input_int("", 0, 1);
+    return (choice == 1);
+}
+
 // ================= GIAO DIỆN MENU PHÂN QUYỀN =================
 void show_manager_menu() {
     cout << "\n==================== MANAGER MENU (TOAN QUYEN) ====================\n";
@@ -86,7 +93,7 @@ void show_manager_menu() {
     cout << "--- QUAN LY MUON / TRA & DUYET HANG DOI ---\n";
     cout << " 5. Lap phieu muon sach truc tiep\n";
     cout << " 6. Xac nhan tra sach\n";
-    cout << " 7. Xoa phieu muon\n";
+    cout << " 7. Xoa phieu muon (chi xoa phieu da tra xong)\n";
     cout << " 8. Duyet yeu cau dang ky muon sach (Hang doi FIFO Queue)\n";
     cout << "--- QUAN LY CA TRUC & LUONG ---\n";
     cout << " 9. Xem toan bo lich truc thu vien\n";
@@ -113,7 +120,7 @@ void show_admin_menu(string admin_name) {
     cout << "--- QUAN LY MUON / TRA & DUYET HANG DOI ---\n";
     cout << " 5. Lap phieu muon sach truc tiep\n";
     cout << " 6. Xac nhan tra sach (Hoan lai kho)\n";
-    cout << " 7. Xoa phieu muon\n";
+    cout << " 7. Xoa phieu muon (chi xoa phieu da tra xong)\n";
     cout << " 8. Duyet yeu cau dang ky muon sach tu Doc gia (Queue FIFO)\n";
     cout << " 9. Loc phieu muon theo ngay\n";
     cout << "--- CA TRUC & LUONG CA NHAN ---\n";
@@ -129,10 +136,10 @@ void show_admin_menu(string admin_name) {
 void show_user_menu(string user_name) {
     cout << "\n================ DOC GIA (USER: " << user_name << ") ================\n";
     cout << "1. Tim kiem sach & xem sach goi y cung the loai\n";
-    cout << "2. Dang ky muon sach\n";
-    cout << "4. Xem sach dang muon\n";
-    cout << "5. Xem lich su muon sach\n";
-    cout << "3. Tra cuu vi tri ke sach de den lay\n";
+    cout << "2. Dang ky muon sach (Hang doi Queue)\n";
+    cout << "3. Xem sach dang muon\n";
+    cout << "4. Xem lich su muon sach\n";
+    cout << "5. Tra cuu vi tri ke sach de den lay\n";
     cout << "0. Dang xuat\n";
     cout << "====================================================================\n";
 }
@@ -149,8 +156,13 @@ int main() {
         cout << "\n-------------------- DANG NHAP --------------------\n";
         string id = input_string("Nhap Ma tai khoan (ID) [Go 'thoat' de tat chuong trinh]: ");
         if (id == "thoat" || id == "exit") {
-            cout << "Dang dong he thong va luu toan bo du lieu. Tam biet!\n";
-            break;
+            if (confirm_action("Ban co chac chan muon dong ung dung va thoat he thong?")) {
+                cout << "Dang dong he thong va luu toan bo du lieu. Tam biet!\n";
+                break;
+            } else {
+                cout << "[Thong bao] Da huy thoat chuong trinh.\n";
+                continue;
+            }
         }
 
         string password = input_string("Nhap Mat khau: ");
@@ -228,14 +240,25 @@ int main() {
                         if (controller.update_book_info(old_id, new_b))
                             cout << "[Thanh cong] Da cap nhat sach!\n";
                         else
-                            cout << "[Loi] Khong tim thay ma sach cu hoac ma moi bi trung!\n";
+                            cout << "[Loi] Cap nhat that bai! (Khong tim thay ma cu, ma moi bi trung, hoac sach dang co nguoi muon nen khong the doi ma ID)\n";
                     }
                     else if (choice == 4) {
                         string b_id = input_string("Nhap Ma sach can xoa: ");
-                        if (controller.delete_book(b_id))
-                            cout << "[Thanh cong] Da xoa sach khoi he thong!\n";
-                        else
-                            cout << "[Loi] Khong tim thay ma sach!\n";
+                        node<book>* b_node = controller.get_book_by_id(b_id);
+                        if (b_node == nullptr) {
+                            cout << "[Loi] Khong tim thay ma sach trong he thong!\n";
+                        } else {
+                            book b = b_node->get_data();
+                            cout << "=> Sach can xoa: [" << b.get_id() << "] " << b.get_title() << " (Tac gia: " << b.get_author() << ")\n";
+                            if (confirm_action("Ban co chac chan muon xoa sach nay khoi kho?")) {
+                                if (controller.delete_book(b_id))
+                                    cout << "[Thanh cong] Da xoa sach khoi he thong!\n";
+                                else
+                                    cout << "[Loi] Khong the xoa! Sach DANG CO NGUOI MUON chua tra!\n";
+                            } else {
+                                cout << "[Huy bo] Da huy thao tac xoa sach.\n";
+                            }
+                        }
                     }
                     else if (choice == 5) {
                         string br_id = input_string("Nhap Ma phieu muon: ");
@@ -248,21 +271,63 @@ int main() {
                         if (controller.borrow_book(br_id, b_id, u_id, b_date, due_date))
                             cout << "[Thanh cong] Lap phieu muon thanh cong!\n";
                         else
-                            cout << "[Loi] Trung ma phieu, sai thong tin hoac het sach!\n";
+                            cout << "[Loi] Trung ma phieu, sai thong tin, het sach, ban doc da muon cuon nay hoac dang no sach qua han!\n";
                     }
                     else if (choice == 6) {
                         string br_id = input_string("Nhap Ma phieu muon can tra: ");
-                        if (controller.return_book(br_id))
-                            cout << "[Thanh cong] Tra sach thanh cong, da hoan kho!\n";
-                        else
-                            cout << "[Loi] Khong tim thay phieu hoac sach da duoc tra!\n";
+                        node<borrow>* br_node = controller.get_borrow_by_id(br_id);
+                        if (br_node == nullptr) {
+                            cout << "[Loi] Khong tim thay ma phieu muon nay trong he thong!\n";
+                        } else {
+                            borrow ticket = br_node->get_data();
+                            if (ticket.get_status() == "Da tra") {
+                                cout << "[Thong bao] Phieu muon nay da duoc tra tu truoc roi!\n";
+                            } else {
+                                cout << "=> Thong tin phieu: Ma sach: " << ticket.get_book_id() 
+                                     << " | Doc gia: " << ticket.get_user_id() 
+                                     << " | Han tra: " << ticket.get_due_date() 
+                                     << " | Trang thai: " << ticket.get_status() << "\n";
+                                
+                                if (ticket.get_status() == "Qua han") {
+                                    cout << "[CANH BAO] Phieu muon nay da bi QUA HAN! Vui long kiem tra va thu tien phat theo quy dinh!\n";
+                                    if (confirm_action("Ban da xu ly nop phat va chac chan muon xac nhan tra sach vao kho?")) {
+                                        if (controller.return_book(br_id))
+                                            cout << "[Thanh cong] Tra sach thanh cong, da hoan lai kho!\n";
+                                    } else {
+                                        cout << "[Huy bo] Da huy xac nhan tra sach.\n";
+                                    }
+                                } else {
+                                    if (confirm_action("Xac nhan nhan tra sach va hoan lai kho?")) {
+                                        if (controller.return_book(br_id))
+                                            cout << "[Thanh cong] Tra sach thanh cong, da hoan kho!\n";
+                                    } else {
+                                        cout << "[Huy bo] Da huy xac nhan tra sach.\n";
+                                    }
+                                }
+                            }
+                        }
                     }
                     else if (choice == 7) {
                         string br_id = input_string("Nhap Ma phieu muon can xoa: ");
-                        if (controller.delete_borrow(br_id))
-                            cout << "[Thanh cong] Da xoa phieu muon!\n";
-                        else
-                            cout << "[Loi] Khong tim thay phieu muon!\n";
+                        node<borrow>* br_node = controller.get_borrow_by_id(br_id);
+                        if (br_node == nullptr) {
+                            cout << "[Loi] Khong tim thay ma phieu muon!\n";
+                        } else {
+                            borrow b = br_node->get_data();
+                            cout << "=> Phieu can xoa: [" << b.get_id() << "] Doc gia: " << b.get_user_id() << " | Trang thai: " << b.get_status() << "\n";
+                            if (b.get_status() != "Da tra") {
+                                cout << "[Loi] Khong the xoa! Sach chua duoc tra (" << b.get_status() << "). Chi duoc xoa phieu da hoan tat tra sach!\n";
+                            } else {
+                                if (confirm_action("Ban co chac chan muon xoa lich su phieu muon nay?")) {
+                                    if (controller.delete_borrow(br_id))
+                                        cout << "[Thanh cong] Da xoa phieu muon!\n";
+                                    else
+                                        cout << "[Loi] Khong the xoa phieu muon!\n";
+                                } else {
+                                    cout << "[Huy bo] Da huy thao tac xoa phieu muon.\n";
+                                }
+                            }
+                        }
                     }
                     else if (choice == 8) {
                         if (!controller.has_pending_requests()) {
@@ -274,16 +339,21 @@ int main() {
                                  << "- Ma phieu: " << req.get_id() << "\n"
                                  << "- Ma sach: " << req.get_book_id() << "\n"
                                  << "- Ma doc gia: " << req.get_user_id() << "\n"
-                                 << "- Ngay yeu cau: " << req.get_borrow_date() << "\n";
+                                 << "- Ngay yeu cau: " << req.get_borrow_date() << "\n"
+                                 << "- Ngay hen tra: " << req.get_due_date() << "\n";
                             int opt = input_int("Chon: (1) Duyet cap phieu | (2) Tu choi huy bo | (0) Bo qua: ", 0, 2);
                             if (opt == 1) {
                                 if (controller.approve_next_request())
                                     cout << "[Thanh cong] Da duyet yeu cau va lap phieu muon chinh thuc!\n";
                                 else
-                                    cout << "[Loi] Duyet that bai (Het sach trong kho hoac trung ma)!\n";
+                                    cout << "[Loi] Duyet that bai (Het sach trong kho, trung ma phieu, hoac doc gia dang no qua han)!\n";
                             } else if (opt == 2) {
-                                controller.reject_next_request();
-                                cout << "[Thanh cong] Da tu choi yeu cau khoi hang doi!\n";
+                                if (confirm_action("Ban co chac chan muon TU CHOI va XOA yeu cau nay khoi hang doi?")) {
+                                    controller.reject_next_request();
+                                    cout << "[Thanh cong] Da tu choi va xoa yeu cau khoi hang doi!\n";
+                                } else {
+                                    cout << "[Huy bo] Da giu nguyen yeu cau trong hang doi.\n";
+                                }
                             }
                         }
                     }
@@ -303,18 +373,26 @@ int main() {
                         date s_date = input_valid_date("Nhap ngay truc (DD MM YYYY): ");
                         string session = input_session("Nhap ca truc ('sang' hoac 'chieu'): ");
                         string adm_id = input_string("Nhap Ma Admin can rut: ");
-                        if (controller.cancel_shift(s_date, session, adm_id))
-                            cout << "[Thanh cong] Da rut ten Admin " << adm_id << " khoi ca truc!\n";
-                        else
-                            cout << "[Loi] Khong tim thay lich truc hoac Admin khong truc ca nay!\n";
+                        if (confirm_action("Xac nhan rut ten Admin " + adm_id + " khoi ca truc nay?")) {
+                            if (controller.cancel_shift(s_date, session, adm_id))
+                                cout << "[Thanh cong] Da rut ten Admin " << adm_id << " khoi ca truc!\n";
+                            else
+                                cout << "[Loi] Khong tim thay lich truc hoac Admin khong truc ca nay!\n";
+                        } else {
+                            cout << "[Huy bo] Da huy thao tac rut ten.\n";
+                        }
                     }
                     else if (choice == 12) {
                         date s_date = input_valid_date("Nhap ngay truc can xoa (DD MM YYYY): ");
                         string session = input_session("Nhap ca truc can xoa ('sang' hoac 'chieu'): ");
-                        if (controller.delete_shift(s_date, session))
-                            cout << "[Thanh cong] Da xoa toan bo ca truc!\n";
-                        else
-                            cout << "[Loi] Khong tim thay ca truc nay!\n";
+                        if (confirm_action("CANH BAO: Xoa ca truc se huy lich cua tat ca nhan vien trong ca nay. Ban co chac chan?")) {
+                            if (controller.delete_shift(s_date, session))
+                                cout << "[Thanh cong] Da xoa toan bo ca truc!\n";
+                            else
+                                cout << "[Loi] Khong tim thay ca truc nay!\n";
+                        } else {
+                            cout << "[Huy bo] Da huy thao tac xoa ca truc.\n";
+                        }
                     }
                     else if (choice == 13) {
                         string adm_id = input_string("Nhap Ma Admin can tinh luong: ");
@@ -327,7 +405,12 @@ int main() {
                         string u_id = input_string("Nhap Ma tai khoan: ");
                         string u_name = input_string("Nhap Ho va ten: ");
                         string u_pass = input_string("Nhap Mat khau: ");
-                        string u_role = input_string("Nhap Vai tro ('manager', 'admin', 'user'): ");
+                        string u_role;
+                        while (true) {
+                            u_role = input_string("Nhap Vai tro ('manager', 'admin', 'user'): ");
+                            if (u_role == "manager" || u_role == "admin" || u_role == "user") break;
+                            cout << "[Loi] Vai tro khong hop le! Vui long nhap 'manager', 'admin' hoac 'user'.\n";
+                        }
                         if (controller.add_new_user(u_id, u_name, u_pass, u_role))
                             cout << "[Thanh cong] Da tao tai khoan moi!\n";
                         else
@@ -335,10 +418,21 @@ int main() {
                     }
                     else if (choice == 15) {
                         string u_id = input_string("Nhap Ma tai khoan can xoa: ");
-                        if (controller.delete_user(u_id))
-                            cout << "[Thanh cong] Da xoa tai khoan!\n";
-                        else
+                        node<user>* u_node = controller.get_user_by_id(u_id);
+                        if (u_node == nullptr) {
                             cout << "[Loi] Khong tim thay tai khoan!\n";
+                        } else {
+                            user usr = u_node->get_data();
+                            cout << "=> Tai khoan can xoa: [" << usr.get_id() << "] " << usr.get_name() << " (Vai tro: " << usr.get_role() << ")\n";
+                            if (confirm_action("CANH BAO: Tai khoan nay se bi xoa vinh vien! Ban co chac chan muon xoa?")) {
+                                if (controller.delete_user(u_id))
+                                    cout << "[Thanh cong] Da xoa tai khoan!\n";
+                                else
+                                    cout << "[Loi] Khong the xoa! Tai khoan dang co sach muon chua tra, co ca truc hoac la tai khoan ban dang dang nhap!\n";
+                            } else {
+                                cout << "[Huy bo] Da huy thao tac xoa tai khoan.\n";
+                            }
+                        }
                     }
                     else if (choice == 16) {
                         string old_id = input_string("Nhap Ma tai khoan cu can sua: ");
@@ -363,13 +457,17 @@ int main() {
                         }
                     }
                     else if (choice == 0) {
-                        controller.logout();
-                        is_logged_in = false;
-                        cout << "Da dang xuat.\n";
+                        if (confirm_action("Ban co thuc su muon dang xuat khoi tai khoan Manager?")) {
+                            controller.logout();
+                            is_logged_in = false;
+                            cout << "[Thanh cong] Da dang xuat.\n";
+                        } else {
+                            cout << "[Thong bao] Da huy dang xuat. Ban van o trong phien lam viec.\n";
+                        }
                     }
                 }
             }
-           // ================= VÒNG LẶP DÀNH CHO ADMIN =================
+            // ================= VÒNG LẶP DÀNH CHO ADMIN =================
             else if (role == "admin") {
                 string my_id = u->get_id();
                 while (is_logged_in) {
@@ -437,15 +535,26 @@ int main() {
                         if (controller.update_book_info(old_id, new_b))
                             cout << "[Thanh cong] Da cap nhat thong tin sach!\n";
                         else
-                            cout << "[Loi] Khong tim thay ma sach cu hoac ma moi bi trung!\n";
+                            cout << "[Loi] Cap nhat that bai! (Khong tim thay ma cu, ma moi bi trung, hoac sach dang co nguoi muon nen khong the doi ma ID)\n";
                     }
                     // --- 4. Xóa sách ---
                     else if (choice == 4) {
                         string b_id = input_string("Nhap Ma sach can xoa: ");
-                        if (controller.delete_book(b_id))
-                            cout << "[Thanh cong] Da xoa sach khoi he thong!\n";
-                        else
+                        node<book>* b_node = controller.get_book_by_id(b_id);
+                        if (b_node == nullptr) {
                             cout << "[Loi] Khong tim thay ma sach can xoa!\n";
+                        } else {
+                            book b = b_node->get_data();
+                            cout << "=> Sach can xoa: [" << b.get_id() << "] " << b.get_title() << " (Tac gia: " << b.get_author() << ")\n";
+                            if (confirm_action("Ban co chac chan muon xoa sach nay khoi kho?")) {
+                                if (controller.delete_book(b_id))
+                                    cout << "[Thanh cong] Da xoa sach khoi he thong!\n";
+                                else
+                                    cout << "[Loi] Khong the xoa! Ma sach khong ton tai hoac SACH DANG CO NGUOI MUON chua tra!\n";
+                            } else {
+                                cout << "[Huy bo] Da huy thao tac xoa sach.\n";
+                            }
+                        }
                     }
                     // --- 5. Lập phiếu mượn sách ---
                     else if (choice == 5) {
@@ -459,23 +568,65 @@ int main() {
                         if (controller.borrow_book(br_id, b_id, u_id, b_date, due_date))
                             cout << "[Thanh cong] Lap phieu muon thanh cong (Da tru kho)!\n";
                         else
-                            cout << "[Loi] Trung ma phieu, sai thong tin hoac het sach!\n";
+                            cout << "[Loi] Trung ma phieu, sai thong tin, het sach, ban doc da muon cuon nay hoac dang no sach qua han!\n";
                     }
                     // --- 6. Xác nhận trả sách ---
                     else if (choice == 6) {
                         string br_id = input_string("Nhap Ma phieu muon can tra: ");
-                        if (controller.return_book(br_id))
-                            cout << "[Thanh cong] Tra sach thanh cong (Da hoan lai vao kho)!\n";
-                        else
-                            cout << "[Loi] Khong tim thay phieu hoac sach da duoc tra roi!\n";
+                        node<borrow>* br_node = controller.get_borrow_by_id(br_id);
+                        if (br_node == nullptr) {
+                            cout << "[Loi] Khong tim thay ma phieu muon nay trong he thong!\n";
+                        } else {
+                            borrow ticket = br_node->get_data();
+                            if (ticket.get_status() == "Da tra") {
+                                cout << "[Thong bao] Phieu muon nay da duoc tra tu truoc roi!\n";
+                            } else {
+                                cout << "=> Thong tin phieu: Ma sach: " << ticket.get_book_id() 
+                                     << " | Doc gia: " << ticket.get_user_id() 
+                                     << " | Han tra: " << ticket.get_due_date() 
+                                     << " | Trang thai: " << ticket.get_status() << "\n";
+                                
+                                if (ticket.get_status() == "Qua han") {
+                                    cout << "[CANH BAO] Phieu muon nay da bi QUA HAN! Vui long kiem tra va thu tien phat theo quy dinh!\n";
+                                    if (confirm_action("Ban da xu ly nop phat va chac chan muon xac nhan tra sach vao kho?")) {
+                                        if (controller.return_book(br_id))
+                                            cout << "[Thanh cong] Tra sach thanh cong (Da hoan lai vao kho)!\n";
+                                    } else {
+                                        cout << "[Huy bo] Da huy xac nhan tra sach.\n";
+                                    }
+                                } else {
+                                    if (confirm_action("Xac nhan nhan tra sach va hoan lai vao kho?")) {
+                                        if (controller.return_book(br_id))
+                                            cout << "[Thanh cong] Tra sach thanh cong (Da hoan lai vao kho)!\n";
+                                    } else {
+                                        cout << "[Huy bo] Da huy xac nhan tra sach.\n";
+                                    }
+                                }
+                            }
+                        }
                     }
                     // --- 7. Xóa phiếu mượn ---
                     else if (choice == 7) {
                         string br_id = input_string("Nhap Ma phieu muon can xoa: ");
-                        if (controller.delete_borrow(br_id))
-                            cout << "[Thanh cong] Da xoa phieu muon khoi he thong!\n";
-                        else
-                            cout << "[Loi] Khong tim thay ma phieu muon!\n";
+                        node<borrow>* br_node = controller.get_borrow_by_id(br_id);
+                        if (br_node == nullptr) {
+                            cout << "[Loi] Khong tim thay ma phieu muon can xoa!\n";
+                        } else {
+                            borrow b = br_node->get_data();
+                            cout << "=> Phieu can xoa: [" << b.get_id() << "] Doc gia: " << b.get_user_id() << " | Trang thai: " << b.get_status() << "\n";
+                            if (b.get_status() != "Da tra") {
+                                cout << "[Loi] Khong the xoa! Sach chua duoc tra (" << b.get_status() << "). Chi duoc xoa phieu da hoan tat tra sach!\n";
+                            } else {
+                                if (confirm_action("Ban co chac chan muon xoa lich su phieu muon nay?")) {
+                                    if (controller.delete_borrow(br_id))
+                                        cout << "[Thanh cong] Da xoa phieu muon khoi he thong!\n";
+                                    else
+                                        cout << "[Loi] Khong the xoa phieu muon!\n";
+                                } else {
+                                    cout << "[Huy bo] Da huy thao tac xoa phieu muon.\n";
+                                }
+                            }
+                        }
                     }
                     // --- 8. Duyệt hàng đợi đăng ký sách từ User ---
                     else if (choice == 8) {
@@ -488,20 +639,25 @@ int main() {
                                  << "- Ma phieu: " << req.get_id() << "\n"
                                  << "- Ma sach: " << req.get_book_id() << "\n"
                                  << "- Ma doc gia: " << req.get_user_id() << "\n"
-                                 << "- Ngay yeu cau: " << req.get_borrow_date() << "\n";
+                                 << "- Ngay yeu cau: " << req.get_borrow_date() << "\n"
+                                 << "- Ngay hen tra: " << req.get_due_date() << "\n";
                             int opt = input_int("Chon: (1) Duyet cap phieu | (2) Tu choi huy bo | (0) Bo qua: ", 0, 2);
                             if (opt == 1) {
                                 if (controller.approve_next_request())
                                     cout << "[Thanh cong] Da duyet yeu cau va lap phieu muon (Da tru kho)!\n";
                                 else
-                                    cout << "[Loi] Duyet that bai (Het sach trong kho hoac trung ma)!\n";
+                                    cout << "[Loi] Duyet that bai (Het sach trong kho, trung ma phieu, hoac doc gia dang no qua han)!\n";
                             } else if (opt == 2) {
-                                controller.reject_next_request();
-                                cout << "[Thanh cong] Da tu choi yeu cau!\n";
+                                if (confirm_action("Ban co chac chan muon TU CHOI va XOA yeu cau nay khoi hang doi?")) {
+                                    controller.reject_next_request();
+                                    cout << "[Thanh cong] Da tu choi va xoa yeu cau!\n";
+                                } else {
+                                    cout << "[Huy bo] Da giu nguyen yeu cau trong hang doi.\n";
+                                }
                             }
                         }
                     }
-                    // --- 9.Lọc ngày phiếu mượn ---
+                    // --- 9. Lọc ngày phiếu mượn ---
                     else if (choice == 9) {
                         date start_date = input_valid_date("Nhap ngay bat dau (DD MM YYYY): ");
                         date end_date;
@@ -560,10 +716,14 @@ int main() {
                     else if (choice == 12) {
                         date s_date = input_valid_date("Nhap ngay muon rut ten (DD MM YYYY): ");
                         string session = input_session("Nhap ca muon rut ('sang' hoac 'chieu'): ");
-                        if (controller.cancel_shift(s_date, session, my_id))
-                            cout << "[Thanh cong] Da rut ten khoi ca truc!\n";
-                        else
-                            cout << "[Loi] Ban khong co trong ca truc nay!\n";
+                        if (confirm_action("Ban co chac chan muon rut ten khoi ca truc nay khong?")) {
+                            if (controller.cancel_shift(s_date, session, my_id))
+                                cout << "[Thanh cong] Da rut ten khoi ca truc!\n";
+                            else
+                                cout << "[Loi] Ban khong co trong ca truc nay!\n";
+                        } else {
+                            cout << "[Huy bo] Da huy thao tac rut khoi ca truc.\n";
+                        }
                     }
                     // --- 13. Xem tiền lương bản thân ---
                     else if (choice == 13) {
@@ -589,9 +749,13 @@ int main() {
                         }
                     }
                     else if (choice == 0) {
-                        controller.logout();
-                        is_logged_in = false;
-                        cout << "Da dang xuat.\n";
+                        if (confirm_action("Ban co thuc su muon dang xuat khoi tai khoan Admin?")) {
+                            controller.logout();
+                            is_logged_in = false;
+                            cout << "[Thanh cong] Da dang xuat.\n";
+                        } else {
+                            cout << "[Thong bao] Da huy dang xuat. Ban van o trong phien lam viec.\n";
+                        }
                     }
                 }
             }
@@ -651,25 +815,16 @@ int main() {
                         date due_date = b_date.add_days(days);
                         cout << "Ngay hen tra du kien: " << due_date << "\n";
                         if (controller.register_book_request(req_id, b_id, my_id, b_date, due_date)) {
-                            cout << "[Thanh cong] Yeu cau cua ban da duoc dua vao Hang doi (Queue)! Vui long cho Manager duyet.\n";
+                            cout << "[Thanh cong] Yeu cau cua ban da duoc dua vao Hang doi (Queue)! Vui long cho Manager/Admin duyet.\n";
                         } else {
-                            cout << "[Loi] Ma sach khong ton tai!\n";
+                            cout << "[Loi] Dang ky that bai! Kiem tra lai:\n"
+                                 << "  - Ma sach khong ton tai hoac sach da het trong kho (so luong = 0)\n"
+                                 << "  - Trung ma yeu cau (ma ID da ton tai trong he thong)\n"
+                                 << "  - Ban dang muon cuon sach nay chua tra hoac dang co sach no qua han!\n";
                         }
                     }
                     else if (choice == 3) {
-                        string b_id = input_string("Nhap Ma sach (ID) can tim vi tri: ");
-                        node<book>* b_node = controller.get_book_by_id(b_id);
-                        if (b_node != nullptr) {
-                            book b = b_node->get_data();
-                            cout << "\n[SO DO VI TRI SACH]\n"
-                                << "- Ten sach: " << b.get_title() << "\n"
-                                << "- The loai: " << b.get_category() << "\n"
-                                << "=> HAY DEN KHU VUC: KE [" << controller.get_book_shelf(b_id) << "]\n";
-                        } else {
-                            cout << "[Loi] Ma sach khong ton tai trong thu vien!\n";
-                        }
-                    }
-                    else if (choice == 4) {
+                        // Xem sách đang mượn
                         linked_list<borrow> records = controller.get_my_borrows(my_id, true);
                         node<borrow>* curr = records.get_head();
                         cout << "\n--- SACH DANG MUON ---\n";
@@ -692,7 +847,8 @@ int main() {
                             curr = curr->get_next();
                         }
                     }
-                    else if (choice == 5) {
+                    else if (choice == 4) {
+                        // Xem lịch sử mượn sách
                         linked_list<borrow> records = controller.get_my_borrows(my_id, false);
                         node<borrow> *curr = records.get_head();
                         cout << "\n--- LICH SU MUON SACH ---\n";
@@ -716,10 +872,28 @@ int main() {
                             curr = curr->get_next();
                         }
                     }
+                    else if (choice == 5) {
+                        // Tra cứu vị trí kệ sách để đến lấy
+                        string b_id = input_string("Nhap Ma sach (ID) can tim vi tri: ");
+                        node<book>* b_node = controller.get_book_by_id(b_id);
+                        if (b_node != nullptr) {
+                            book b = b_node->get_data();
+                            cout << "\n[SO DO VI TRI SACH]\n"
+                                << "- Ten sach: " << b.get_title() << "\n"
+                                << "- The loai: " << b.get_category() << "\n"
+                                << "=> HAY DEN KHU VUC: KE [" << controller.get_book_shelf(b_id) << "]\n";
+                        } else {
+                            cout << "[Loi] Ma sach khong ton tai trong thu vien!\n";
+                        }
+                    }
                     else if (choice == 0) {
-                        controller.logout();
-                        is_logged_in = false;
-                        cout << "Da dang xuat.\n";
+                        if (confirm_action("Ban co thuc su muon dang xuat khoi tai khoan Doc gia?")) {
+                            controller.logout();
+                            is_logged_in = false;
+                            cout << "[Thanh cong] Da dang xuat.\n";
+                        } else {
+                            cout << "[Thong bao] Da huy dang xuat. Ban van o trong phien lam viec.\n";
+                        }
                     }
                 }
             }
