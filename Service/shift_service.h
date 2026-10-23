@@ -39,4 +39,5 @@ public:
     int count_shifts_by_admin(std::string admin_id, int month = 0, int year = 0) const;
     long long calculate_salary(std::string admin_id, int month = 0, int year = 0, long long rate_per_shift = 200000) const;
     linked_list<shift> get_shifts_by_admin(std::string admin_id) const;
+    bool has_shifts(std::string admin_id) const;
 };

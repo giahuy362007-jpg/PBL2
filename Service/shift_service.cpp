@@ -16,11 +16,11 @@ std::string shift_service::generate_key(date d, std::string session) const {
     return ss.str();
 }
 
-// --- Tách dòng từ shift.txt (Định dạng: 01/10/2026;sang;AD01,AD02)[cite: 30] ---
+// --- Tách dòng từ shift.txt (Định dạng: 01/10/2026;sang;AD01,AD02) ---
 void shift_service::parse_line(std::string line, shift& s) {
     if (!line.empty() && line.back() == '\r') {
-    line.pop_back();
-}
+        line.pop_back();
+    }
     std::stringstream ss(line);
     std::string date_str, session, admins_str;
 
@@ -42,7 +42,7 @@ void shift_service::parse_line(std::string line, shift& s) {
     std::string admin_id;
     while (std::getline(ss_adm, admin_id, ',')) {
         if (!admin_id.empty()) {
-            s.add_admin(admin_id); // Tự động thêm vào mảng tối đa 4 người[cite: 20, 21]
+            s.add_admin(admin_id); // Tự động thêm vào mảng tối đa 4 người
         }
     }
 }
@@ -106,16 +106,19 @@ bool shift_service::register_shift(date shift_date, std::string session, std::st
 
         shift_list.push_back(new_shift);
         shift_index.insert(key, shift_list.get_tail());
+
+        save_data(); // Lưu ngay xuống file
         return true;
     } else {
-        // Nếu ca đã tồn tại -> Lấy ra cập nhật (tuân thủ quy tắc lấy data, sửa, rồi set_data ngược lại vào node)
+        // Nếu ca đã tồn tại -> Lấy ra cập nhật
         shift target_shift = shift_node->get_data();
         
         if (!target_shift.add_admin(admin_id)) {
-            return false; // Thất bại (do đầy 4 người hoặc đã đăng ký rồi)[cite: 20, 21]
+            return false; // Thất bại (do đầy 4 người hoặc đã đăng ký rồi)
         }
 
         shift_node->set_data(target_shift);
+        save_data(); // Lưu ngay xuống file
         return true;
     }
 }
@@ -128,7 +131,7 @@ bool shift_service::cancel_shift(date shift_date, std::string session, std::stri
 
     shift target_shift = shift_node->get_data();
     if (!target_shift.remove_admin(admin_id)) {
-        return false; // Không tìm thấy admin này trong ca[cite: 20, 21]
+        return false; // Không tìm thấy admin này trong ca
     }
 
     // Nếu ca trực trống sạch bóng admin -> Xóa luôn ca trực đó khỏi danh sách
@@ -139,6 +142,7 @@ bool shift_service::cancel_shift(date shift_date, std::string session, std::stri
         shift_node->set_data(target_shift);
     }
 
+    save_data(); // Lưu ngay xuống file
     return true;
 }
 
@@ -147,6 +151,7 @@ node<shift>* shift_service::get_shift(date shift_date, std::string session) {
     std::string key = generate_key(shift_date, session);
     return shift_index.find(key);
 }
+
 // --- 6. XÓA TOÀN BỘ CA TRỰC (Dành cho Manager hủy lịch trực ngày lễ/đột xuất) ---
 bool shift_service::delete_entire_shift(date shift_date, std::string session) {
     std::string key = generate_key(shift_date, session);
@@ -157,6 +162,8 @@ bool shift_service::delete_entire_shift(date shift_date, std::string session) {
     // Xóa khỏi bảng băm và danh sách liên kết
     shift_index.remove(key);
     shift_list.remove_node(target);
+
+    save_data(); // Lưu ngay xuống file
     return true;
 }
 
@@ -204,7 +211,19 @@ linked_list<shift> shift_service::get_shifts_by_admin(std::string admin_id) cons
     return result;
 }
 
-// --- 10. HIỂN THỊ TOÀN BỘ LỊCH TRỰC ---
+// --- 10. KIỂM TRA ADMIN CÓ LỊCH TRỰC KHÔNG ---
+bool shift_service::has_shifts(std::string admin_id) const {
+    node<shift>* curr = shift_list.get_head();
+    while (curr != nullptr) {
+        if (curr->get_data().has_admin(admin_id)) {
+            return true;
+        }
+        curr = curr->get_next();
+    }
+    return false;
+}
+
+// --- 11. HIỂN THỊ TOÀN BỘ LỊCH TRỰC ---
 void shift_service::display_all() {
     node<shift>* curr = shift_list.get_head();
     if (curr == nullptr) {

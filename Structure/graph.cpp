@@ -1,4 +1,4 @@
-#include"graph.h"
+#include "graph.h"
 
 template <typename t>
 graph<t>::graph(int cap) {
@@ -59,6 +59,7 @@ template <typename t>
 linked_list<int>& graph<t>::get_adj_list(int index) const {
     return adj_list[index];
 }
+
 template <typename t>
 linked_list<t> graph<t>::get_neighbors(t vertex_data) const {
     linked_list<t> neighbors;
@@ -82,9 +83,17 @@ linked_list<t> graph<t>::get_neighbors(t vertex_data) const {
     }
     return neighbors;
 }
+
 template <typename t>
 void graph<t>::clear() {
-    delete[] vertices;
-    delete[] adj_list; // Gọi destructor của linked_list để giải phóng từng node
+    if (vertices != nullptr) {
+        delete[] vertices;
+        vertices = nullptr;
+    }
+    if (adj_list != nullptr) {
+        delete[] adj_list; // Gọi destructor của linked_list để giải phóng từng node
+        adj_list = nullptr;
+    }
     num_vertices = 0;
+    capacity = 0;
 }

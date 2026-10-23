@@ -9,7 +9,9 @@ library_controller::library_controller()
     
     load_requests();
     load_positions(); // Đọc dữ liệu vị trí sách từ file
+    check_system_overdue(); // Tự động cập nhật các phiếu quá hạn theo ngày thực tế của máy
 }
+
 library_controller::~library_controller() {
     save_requests();
 }
@@ -60,7 +62,7 @@ void library_controller::save_requests() {
              << req.get_status() << "\n";
         temp_queue.push(req);
     }
-    // Khôi phục lại hàng đợi trên RAM
+    // Khôi phục lại hàng đợi trên RAM không làm mất dữ liệu
     while (!temp_queue.is_empty()) {
         book_request_queue.push(temp_queue.front());
         temp_queue.pop();
@@ -71,6 +73,9 @@ void library_controller::save_requests() {
 // ================= 1. PHIÊN ĐĂNG NHẬP =================
 bool library_controller::login(std::string id, std::string password) {
     current_logged_in_user = u_service.login(id, password);
+    if (current_logged_in_user != nullptr) {
+        check_system_overdue(); // Mỗi lần đăng nhập tự động rà soát phiếu quá hạn
+    }
     return (current_logged_in_user != nullptr);
 }
 
@@ -111,10 +116,18 @@ bool library_controller::add_new_book(std::string id, std::string title, std::st
 }
 
 bool library_controller::update_book_info(std::string old_id, book book_n) {
+    // Nếu đổi mã sách mà sách cũ đang có người mượn -> Không cho đổi để tránh sai lệch dữ liệu
+    if (old_id != book_n.get_id() && br_service.is_book_borrowed(old_id)) {
+        return false;
+    }
     return b_service.update_book(old_id, book_n);
 }
 
 bool library_controller::delete_book(std::string id) {
+    // RÀNG BUỘC TOÀN VẸN: Không cho xóa sách đang có người mượn hoặc quá hạn chưa trả
+    if (br_service.is_book_borrowed(id)) {
+        return false; 
+    }
     return b_service.delete_book(id);
 }
 
@@ -122,7 +135,11 @@ node<book>* library_controller::get_book_by_id(std::string id) {
     return b_service.get_book_by_id(id);
 }
 
-//Lọc phiếu mượn
+void library_controller::sort_books(bool (*cmp)(book, book)) {
+    b_service.sort_books(cmp);
+}
+
+// Lọc phiếu mượn
 linked_list<borrow> library_controller::filter_borrows_by_date(date start_date, date end_date) {
     return br_service.filter_borrows_by_date(start_date, end_date);
 }
@@ -144,11 +161,60 @@ linked_list<borrow> library_controller::get_my_borrows(std::string user_id, bool
     return br_service.get_borrows_by_user(user_id, active_only);
 }
 
+void library_controller::check_system_overdue() {
+    time_t t = time(0);
+    tm* now = localtime(&t);
+    date today(now->tm_mday, now->tm_mon + 1, now->tm_year + 1900);
+    br_service.check_and_update_overdue(today);
+}
+
 // ================= 4. HÀNG ĐỢI ĐĂNG KÝ SÁCH (USER QUEUE) =================
+bool library_controller::is_request_id_in_queue(std::string req_id) {
+    queue<borrow> temp_queue;
+    bool found = false;
+    while (!book_request_queue.is_empty()) {
+        borrow req = book_request_queue.front();
+        book_request_queue.pop();
+        if (req.get_id() == req_id) {
+            found = true;
+        }
+        temp_queue.push(req);
+    }
+    while (!temp_queue.is_empty()) {
+        book_request_queue.push(temp_queue.front());
+        temp_queue.pop();
+    }
+    return found;
+}
+
 bool library_controller::register_book_request(std::string req_id, std::string book_id, std::string user_id, date b_date, date due_date) {
-    if (b_service.get_book_by_id(book_id) == nullptr) return false;
+    // 1. Kiểm tra sách có tồn tại không
+    node<book>* b_node = b_service.get_book_by_id(book_id);
+    if (b_node == nullptr) return false;
+
+    // 2. Kiểm tra sách còn tồn kho > 0
+    if (b_node->get_data().get_quantity() <= 0) return false;
+
+    // 3. Kiểm tra ngày hẹn trả hợp lệ
+    if (due_date < b_date) return false;
+
+    // 4. Kiểm tra trùng mã với phiếu mượn đã có trong hệ thống
+    if (br_service.get_borrow_by_id(req_id) != nullptr) return false;
+
+    // 5. Kiểm tra trùng mã trong hàng đợi đang chờ duyệt
+    if (is_request_id_in_queue(req_id)) return false;
+
+    // 6. Kiểm tra bạn đọc này có đang mượn chính cuốn này chưa trả không
+    if (br_service.is_user_borrowing_book(user_id, book_id)) return false;
+
+    // 7. Kiểm tra bạn đọc có sách nợ quá hạn chưa trả không
+    if (br_service.has_overdue_borrows(user_id)) return false;
+
     borrow ticket(req_id, book_id, user_id, b_date, due_date, "Cho duyet");
     book_request_queue.push(ticket);
+
+    // Lưu ngay xuống file request.txt
+    save_requests();
     return true;
 }
 
@@ -167,6 +233,7 @@ bool library_controller::approve_next_request() {
     // Tạo phiếu mượn chính thức và trừ số lượng trong kho
     if (borrow_book(req.get_id(), req.get_book_id(), req.get_user_id(), req.get_borrow_date(), req.get_due_date())) {
         book_request_queue.pop();
+        save_requests(); // Cập nhật ngay file request.txt
         return true;
     }
     return false; // Hết sách hoặc trùng mã phiếu
@@ -175,6 +242,7 @@ bool library_controller::approve_next_request() {
 bool library_controller::reject_next_request() {
     if (book_request_queue.is_empty()) return false;
     book_request_queue.pop();
+    save_requests(); // Cập nhật ngay file request.txt
     return true;
 }
 
@@ -218,10 +286,19 @@ bool library_controller::update_user_info(std::string old_id, user updated_user)
 }
 
 bool library_controller::delete_user(std::string id) {
-    // Chặn tự xóa tài khoản đang đăng nhập
+    // 1. Chặn tự xóa tài khoản đang đăng nhập
     if (current_logged_in_user != nullptr && current_logged_in_user->get_id() == id) {
         return false; 
     }
+    // 2. Chặn xóa tài khoản đang có sách mượn chưa trả
+    if (br_service.has_active_borrows(id)) {
+        return false;
+    }
+    // 3. Chặn xóa tài khoản Admin đang có lịch trực
+    if (s_service.has_shifts(id)) {
+        return false;
+    }
+
     return u_service.delete_user(id);
 }
 
@@ -233,7 +310,7 @@ node<user>* library_controller::get_user_by_id(std::string id) {
 void library_controller::load_positions() {
     std::ifstream file(position_file);
     if (!file.is_open()) {
-        file.open("position.txt"); // Dự phòng nếu file nằm ở thư mục gốc
+        file.open("position.txt");
     }
     if (!file.is_open()) return;
 
@@ -248,7 +325,6 @@ void library_controller::load_positions() {
         std::getline(ss, cat, ';');
         std::getline(ss, shelf, ';');
 
-        // Chuẩn hóa mã sách về chữ in thường để so khớp không phân biệt hoa/thường
         b_id = search_algo::to_lower(search_algo::trim(b_id));
         shelf = search_algo::trim(shelf);
 
@@ -268,5 +344,5 @@ std::string library_controller::get_book_shelf(std::string book_id) {
         }
         curr = curr->get_next();
     }
-    return "Chua xep ke"; // Trường hợp sách mới thêm chưa có trong sơ đồ
+    return "Chua xep ke";
 }

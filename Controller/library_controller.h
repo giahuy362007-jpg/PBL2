@@ -2,15 +2,15 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <ctime>
 #include "../Service/book_service.h"
 #include "../Service/user_service.h"
 #include "../Service/borrow_service.h"
 #include "../Service/shift_service.h"
-#include "../Structure/queue.h" // Sử dụng hàng đợi tự chế cho việc đăng ký sách
+#include "../Structure/queue.h"
 
 class library_controller {
 private:
-    // Thêm struct này ở trên class library_controller trong library_controller.h
     struct book_location {
         std::string book_id;
         std::string category;
@@ -56,7 +56,9 @@ public:
     bool update_book_info(std::string old_id, book book_n);
     bool delete_book(std::string id);
     node<book>* get_book_by_id(std::string id);
-    //Lọc phiếu mượn
+    void sort_books(bool (*cmp)(book, book));
+    
+    // Lọc phiếu mượn
     linked_list<borrow> filter_borrows_by_date(date start_date, date end_date);
 
     // ================= 3. NGHIỆP VỤ MƯỢN - TRẢ (BORROW) =================
@@ -64,6 +66,7 @@ public:
     bool return_book(std::string borrow_id);
     bool delete_borrow(std::string borrow_id);
     linked_list<borrow> get_my_borrows(std::string user_id, bool active_only);
+    void check_system_overdue(); // Tự động cập nhật phiếu quá hạn theo ngày thực tế
 
     // ================= 4. HÀNG ĐỢI ĐĂNG KÝ SÁCH CỦA USER (QUEUE) =================
     bool register_book_request(std::string req_id, std::string book_id, std::string user_id, date b_date, date due_date);
@@ -72,15 +75,13 @@ public:
     bool approve_next_request();
     bool reject_next_request();
     int get_pending_request_count() const;
+    bool is_request_id_in_queue(std::string req_id);
 
     // ================= 5. NGHIỆP VỤ CA TRỰC (SHIFT) =================
-    // Dành cho cả Manager và Admin (tự thao tác cho mình)
     bool register_shift(date d, std::string session, std::string admin_id);
     bool cancel_shift(date d, std::string session, std::string admin_id);
     linked_list<shift> get_my_shifts(std::string admin_id);
     long long get_admin_salary(std::string admin_id, int month = 0, int year = 0);
-
-    // Dành riêng cho Manager (Đặc quyền)
     bool delete_shift(date d, std::string session);
     void show_all_shifts();
 
@@ -90,7 +91,6 @@ public:
     bool delete_user(std::string id);
     node<user>* get_user_by_id(std::string id);
 
-    //===============Vi tri=================
-    // Tra cứu vị trí kệ của một quyển sách theo mã ID (Ví dụ: Trả về "a1", "b2",...)
+    // ================= 7. VỊ TRÍ KỆ SÁCH =================
     std::string get_book_shelf(std::string book_id);
 };

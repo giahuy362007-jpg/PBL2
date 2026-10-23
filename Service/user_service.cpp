@@ -11,10 +11,9 @@ user_service::~user_service() {
 
 // --- Tách dòng từ user.txt (định dạng: ID;Name;Password;Role) ---
 void user_service::parse_line(std::string line, user& u) {
-
     if (!line.empty() && line.back() == '\r') {
-    line.pop_back();
-}
+        line.pop_back();
+    }
     std::stringstream ss(line);
     std::string id, name, password, role;
 
@@ -65,8 +64,7 @@ bool user_service::save_data() {
 }
 
 // --- 3. XÁC THỰC ĐĂNG NHẬP ---
-user* user_service::login(std::string id, std::string password)
-{
+user* user_service::login(std::string id, std::string password) {
     node<user>* target = user_index.find(id);
 
     if (target == nullptr)
@@ -78,13 +76,13 @@ user* user_service::login(std::string id, std::string password)
     return nullptr; // sai mk
 }
 
-// --- Kiểm tra phân quyền (Hỗ trợ Admin, Manager) ---
+// --- Kiểm tra phân quyền (Hỗ trợ Manager > Admin > User) ---
 bool user_service::check_permission_level(user* u, std::string required_role) {
     if (u == nullptr) return false;
     
     std::string role = u->get_role();
-    if (role == "admin") return true; // Admin có quyền tối cao thao tác mọi thứ
-    if (role == "manager" && (required_role == "manager" || required_role == "user")) return true;
+    if (role == "manager") return true; // Manager có quyền tối cao
+    if (role == "admin" && (required_role == "admin" || required_role == "user")) return true;
     if (role == "user" && required_role == "user") return true;
 
     return false;
@@ -98,6 +96,8 @@ bool user_service::add_user(user new_user) {
 
     user_list.push_back(new_user);
     user_index.insert(new_user.get_id(), user_list.get_tail());
+
+    save_data(); // Lưu ngay xuống file
     return true;
 }
 
@@ -108,6 +108,8 @@ bool user_service::delete_user(std::string id) {
 
     user_index.remove(id);
     user_list.remove_node(target); 
+
+    save_data(); // Lưu ngay xuống file
     return true;
 }
 
@@ -127,6 +129,8 @@ bool user_service::update_user(std::string old_id, user new_data) {
     } else {
         target->set_data(new_data);
     }
+
+    save_data(); // Lưu ngay xuống file
     return true;
 }
 

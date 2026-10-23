@@ -40,7 +40,6 @@ bool book_service::save_data() {
     node<book>* curr = book_list.get_head();
     while (curr != nullptr) {
         book b = curr->get_data();
-        // Giả sử các trường cách nhau bởi dấu phẩy (CSV)
         file << b.get_id() << ";" 
              << b.get_title() << ";" 
              << b.get_author() << ";" 
@@ -62,6 +61,8 @@ bool book_service::add_book(book new_book) {
 
     book_list.push_back(new_book);
     book_index.insert(new_book.get_id(), book_list.get_tail());
+
+    save_data(); // Lưu ngay xuống file
     return true;
 }
 
@@ -75,6 +76,8 @@ bool book_service::delete_book(std::string id) {
     
     // Xóa node khỏi DSLK (Yêu cầu linked_list có hàm remove_node(node*))
     book_list.remove_node(target); 
+
+    save_data(); // Lưu ngay xuống file
     return true;
 }
 
@@ -97,6 +100,8 @@ bool book_service::update_book(std::string old_id, book new_data) {
         // Chỉ sửa tên/tác giả, giữ nguyên mã ID
         target->set_data(new_data);
     }
+
+    save_data(); // Lưu ngay xuống file
     return true;
 }
 
@@ -132,12 +137,12 @@ void book_service::sort_books(bool (*cmp)(book, book)) {
     sort_algo::merge_sort(&head_ptr, cmp);
     book_list.update_after_sort(head_ptr);
 }
+
 // --- Tách dòng từ book.txt (Định dạng: ID;Title;Author;Category;Quantity;Year) ---
 void book_service::parse_line(std::string line, book& b) {
-    
     if (!line.empty() && line.back() == '\r') {
-    line.pop_back();
-}   
+        line.pop_back();
+    }   
     std::stringstream ss(line);
     std::string id, title, author, category;
     std::string qty_str, year_str;

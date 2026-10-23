@@ -33,7 +33,11 @@ istream& operator>>(istream& in, user& u) {
     cout << "Ma nguoi dung: "; getline(in >> ws, u.id);
     cout << "Ho ten: "; getline(in, u.name);
     cout << "Mat khau: "; getline(in, u.password);
-    cout << "Vai tro: "; getline(in, u.role);
+    while (true) {
+        cout << "Vai tro ('manager', 'admin', 'user'): "; getline(in, u.role);
+        if (u.role == "manager" || u.role == "admin" || u.role == "user") break;
+        cout << "[Loi] Vai tro khong hop le! Chi duoc chon 'manager', 'admin' hoac 'user'. Vui long nhap lai.\n";
+    }
     return in;
 }
 

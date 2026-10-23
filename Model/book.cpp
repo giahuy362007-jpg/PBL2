@@ -40,6 +40,7 @@ void book::set_quantity(int quantity) {
     }
 }
 void book::set_year(int year) { this->year = year; }
+
 // Tăng trước (++b)
 book& book::operator++() {
     quantity++;
@@ -69,14 +70,19 @@ book book::operator--(int) {
     }
     return temp;
 }
+
 istream& operator>>(istream& in, book& b) {
     cout << "Ma sach: "; getline(in >> ws, b.id);
     cout << "Ten sach: "; getline(in, b.title);
     cout << "Tac gia: "; getline(in, b.author);
     cout << "The loai: "; getline(in, b.category);
     cout << "So luong: "; in >> b.quantity;
-    while (in && b.quantity < 0) { cout << "So luong phai >= 0, nhap lai: "; in >> b.quantity; }
+    while (in && b.quantity < 0) { 
+        cout << "So luong phai >= 0, nhap lai: "; 
+        in >> b.quantity; 
+    }
     cout << "Nam xuat ban: "; in >> b.year;
+    in.ignore(10000, '\n');
     return in;
 }
 
