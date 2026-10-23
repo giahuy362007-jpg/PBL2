@@ -127,7 +127,8 @@ linked_list<book> book_service::search_books(std::string keyword) {
 
 // --- 8. SẮP XẾP BẰNG MERGE SORT ---
 void book_service::sort_books(bool (*cmp)(book, book)) {
-    node<book>* head_ptr = book_list.get_head();
+    node<book>* head_ptr = book_list.get_head();    
+
     sort_algo::merge_sort(&head_ptr, cmp);
     book_list.update_after_sort(head_ptr);
 }

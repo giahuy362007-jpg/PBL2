@@ -122,6 +122,11 @@ node<book>* library_controller::get_book_by_id(std::string id) {
     return b_service.get_book_by_id(id);
 }
 
+//Lọc phiếu mượn
+linked_list<borrow> library_controller::filter_borrows_by_date(date start_date, date end_date) {
+    return br_service.filter_borrows_by_date(start_date, end_date);
+}
+
 // ================= 3. QUẢN LÝ MƯỢN - TRẢ =================
 bool library_controller::borrow_book(std::string borrow_id, std::string book_id, std::string user_id, date borrow_date, date due_date) {
     return br_service.create_borrow_ticket(borrow_id, book_id, user_id, borrow_date, due_date, b_service, u_service);
@@ -133,6 +138,10 @@ bool library_controller::return_book(std::string borrow_id) {
 
 bool library_controller::delete_borrow(std::string borrow_id) {
     return br_service.delete_borrow_ticket(borrow_id);
+}
+
+linked_list<borrow> library_controller::get_my_borrows(std::string user_id, bool active_only) {
+    return br_service.get_borrows_by_user(user_id, active_only);
 }
 
 // ================= 4. HÀNG ĐỢI ĐĂNG KÝ SÁCH (USER QUEUE) =================

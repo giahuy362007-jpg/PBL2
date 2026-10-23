@@ -30,6 +30,7 @@ public:
 
     date& operator++();
     date operator++(int);
+    date add_days(int days) const;
 
     bool operator==(const date& other) const;
     bool operator!=(const date& other) const;

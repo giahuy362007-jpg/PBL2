@@ -153,6 +153,42 @@ bool borrow_service::return_book(std::string borrow_id, book_service& b_service)
 node<borrow>* borrow_service::get_borrow_by_id(std::string id) {
     return borrow_index.find(id);
 }
+//Lọc phiếu mượn
+linked_list<borrow> borrow_service::get_borrows_by_user(std::string user_id, bool active_only) {
+    linked_list<borrow> result;
+    node<borrow>* curr = borrow_list.get_head();
+    while (curr != nullptr) {
+        borrow b = curr->get_data();
+        if (b.get_user_id() == user_id) {
+            //active_only = true: chỉ lấy phiếu chưa trả. Phiếu Qua han vẫn được tính vì người mượn chưa trả sách.
+            //active_only = false: lấy toàn bộ phiếu của User, kể cả đã trả.
+            if (!active_only || b.get_status() != "Da tra") {
+                result.push_back(b);
+            }
+        }
+        curr = curr->get_next();
+    }
+    return result;
+}
+
+//Locj ngày mượn
+linked_list<borrow> borrow_service::filter_borrows_by_date(date start_date, date end_date) {
+    linked_list<borrow> result;
+    node<borrow>* curr = borrow_list.get_head();
+
+    while (curr != nullptr) {
+        borrow b = curr->get_data();
+        date borrow_date = b.get_borrow_date();
+
+        if (borrow_date >= start_date && borrow_date <= end_date) {
+            result.push_back(b);
+        }
+
+        curr = curr->get_next();
+    }
+
+    return result;
+}
 
 // --- XÓA PHIẾU MƯỢN ---
 bool borrow_service::delete_borrow_ticket(std::string borrow_id) {
@@ -163,8 +199,8 @@ bool borrow_service::delete_borrow_ticket(std::string borrow_id) {
     }
     if (target->get_Data().get_status() == "Dang muon") {
     // Có thể return false nếu quy định: Sách phải được trả ("Da tra") mới cho phép xóa lịch sử phiếu mượn
-    return false; 
-}
+        return false; 
+    }
     // 2. Xóa chỉ mục trên Bảng băm trước
     borrow_index.remove(borrow_id);
 

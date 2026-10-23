@@ -11,6 +11,8 @@ private:
 
 public:
     linked_list();
+    linked_list(const linked_list<t>& other); //tạo danh sách mới bằng cách sao chép dữ liệu từ danh sách khác.
+    linked_list<t>& operator=(const linked_list<t>& other); //sao chép dữ liệu khi gán một danh sách có sẵn cho danh sách khác.
     ~linked_list();
 
     bool empty() const;
