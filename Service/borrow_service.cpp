@@ -76,6 +76,9 @@ bool borrow_service::create_borrow_ticket(std::string borrow_id, std::string boo
     // Check xem User có đang nợ sách quá hạn không
     if (has_overdue_borrows(user_id)) return false;
 
+    // GIỚI HẠN MƯỢN TỐI ĐA 7 CUỐN ĐANG MƯỢN
+    if (count_active_borrows_by_user(user_id) >= 7) return false;
+
     // Check xem User có đang mượn chính cuốn sách này chưa trả không
     if (is_user_borrowing_book(user_id, book_id)) return false;
 
@@ -269,4 +272,28 @@ bool borrow_service::has_overdue_borrows(std::string user_id) const {
         curr = curr->get_next();
     }
     return false;
+}
+int borrow_service::count_active_borrows_by_user(std::string user_id) const {
+    int count = 0;
+    node<borrow>* curr = borrow_list.get_head();
+    while (curr != nullptr) {
+        borrow b = curr->get_data();
+        if (b.get_user_id() == user_id && b.get_status() != "Da tra") {
+            count++;
+        }
+        curr = curr->get_next();
+    }
+    return count;
+}
+
+int borrow_service::count_borrows_by_book(std::string book_id) const {
+    int count = 0;
+    node<borrow>* curr = borrow_list.get_head();
+    while (curr != nullptr) {
+        if (curr->get_data().get_book_id() == book_id) {
+            count++;
+        }
+        curr = curr->get_next();
+    }
+    return count;
 }

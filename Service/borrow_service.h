@@ -46,4 +46,7 @@ public:
     bool has_active_borrows(std::string user_id) const;
     bool is_user_borrowing_book(std::string user_id, std::string book_id) const;
     bool has_overdue_borrows(std::string user_id) const;
+
+    int count_active_borrows_by_user(std::string user_id) const;
+    int count_borrows_by_book(std::string book_id) const;
 };

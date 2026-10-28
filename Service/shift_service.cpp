@@ -230,9 +230,3 @@ void shift_service::display_all() {
     }
     std::cout << "===================================================\n";
 }
-
-string shift::to_record_string() const {
-    stringstream ss;
-    ss << shift_date << ";" << session << ";" << get_all_admins_string();
-    return ss.str();
-}

@@ -97,5 +97,3 @@ void graph<t>::clear() {
     num_vertices = 0;
     capacity = 0;
 }
-
-}
