@@ -168,6 +168,7 @@ linked_list<borrow> library_controller::get_my_borrows(std::string user_id, bool
 void library_controller::check_system_overdue() {
     time_t t = time(0);
     tm* now = localtime(&t);
+    if (now == nullptr) return; // Bảo vệ an toàn chống crash
     date today(now->tm_mday, now->tm_mon + 1, now->tm_year + 1900);
     br_service.check_and_update_overdue(today);
 }
@@ -277,6 +278,9 @@ bool library_controller::delete_shift(date d, std::string session) {
 
 void library_controller::show_all_shifts() {
     s_service.display_all();
+}
+linked_list<shift> library_controller::get_all_shifts() {
+    return s_service.get_all_shifts();
 }
 
 // ================= 6. QUẢN LÝ NGƯỜI DÙNG (USER CRUD - MANAGER) =================

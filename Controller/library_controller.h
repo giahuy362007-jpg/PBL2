@@ -90,6 +90,7 @@ public:
     long long get_admin_salary(std::string admin_id, int month = 0, int year = 0);
     bool delete_shift(date d, std::string session);
     void show_all_shifts();
+    linked_list<shift> get_all_shifts();
 
     // ================= 6. QUẢN LÝ NGƯỜI DÙNG (USER CRUD - MANAGER) =================
     bool add_new_user(std::string id, std::string name, std::string password, std::string role);
@@ -99,4 +100,15 @@ public:
 
     // ================= 7. VỊ TRÍ KỆ SÁCH =================
     std::string get_book_shelf(std::string book_id);
+
+    // ================= 8. HOÀN TÁC ĐA ĐỐI TƯỢNG (TEMPLATE STACK UNDO) =================
+    bool can_undo_book() const;
+    bool undo_last_book_action(std::string& out_message);
+    bool undo_book_action(std::string& out_message); // Tên gọi tương đương
+
+    bool can_undo_user() const;
+    bool undo_user_action(std::string& out_message);
+
+    bool can_undo_borrow() const;
+    bool undo_borrow_action(std::string& out_message);
 };

@@ -12,6 +12,9 @@ public:
     stack();
     ~stack();
 
+    stack(const stack<t>&) = delete;
+    stack<t>& operator=(const stack<t>&) = delete;
+
     bool empty() const;
     int get_size() const;
 

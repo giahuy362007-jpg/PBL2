@@ -12,6 +12,9 @@ public:
     queue();
     ~queue();
 
+    queue(const queue<t>&) = delete;
+    queue<t>& operator=(const queue<t>&) = delete;
+
     void push(t item);       // Thêm phần tử vào cuối hàng
     void pop();              // Xóa phần tử ở đầu hàng
     t front() const;         // Lấy giá trị phần tử ở đầu hàng

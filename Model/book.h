@@ -38,4 +38,6 @@ public:
 
     friend std::istream& operator>>(std::istream& in, book& b);
     friend std::ostream& operator<<(std::ostream& out, const book& b);
+
+    bool book::operator==(const book& other) const;
 };

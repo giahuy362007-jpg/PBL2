@@ -42,4 +42,5 @@ public:
     linked_list<shift> get_shifts_by_admin(std::string admin_id) const;
     bool has_shifts(std::string admin_id) const;
 
+    linked_list<shift> get_all_shifts() const;
 };

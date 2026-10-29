@@ -89,3 +89,7 @@ ostream& operator<<(ostream& out, const book& b) {
         << "Nam xuat ban: " << b.year;
     return out;
 }
+
+bool book::operator==(const book& other) const {
+    return this->id == other.id;
+}

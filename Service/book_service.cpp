@@ -141,9 +141,27 @@ void book_service::parse_line(std::string line, book& b) {
     std::getline(ss, year_str, ';');
 
     // Chuyển đổi các trường số lượng và năm xuất bản từ string sang int an toàn
-    int quantity = qty_str.empty() ? 0 : std::stoi(qty_str);
-    int year = year_str.empty() ? 0 : std::stoi(year_str);
+    int quantity = 0;
+    int year = 0;
+    try
+    {
+        if (!qty_str.empty())
+            quantity = std::stoi(search_algo::trim(qty_str));
+    }
+    catch (...)
+    {
+        quantity = 0;
+    }
 
+    try
+    {
+        if (!year_str.empty())
+            year = std::stoi(search_algo::trim(year_str));
+    }
+    catch (...)
+    {
+        year = 0;
+    }
     // Khởi tạo đối tượng book hoàn chỉnh
     b = book(id, title, author, category, quantity, year);
 }

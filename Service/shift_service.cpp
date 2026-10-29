@@ -1,5 +1,7 @@
+#include<iostream>
 #include "shift_service.h"
-
+#include "../Algorithm/search_algo.h"
+#include"../Model/date.h"
 shift_service::shift_service(std::string filename) {
     data_file = filename;
     load_data();
@@ -17,32 +19,40 @@ std::string shift_service::generate_key(date d, std::string session) const {
 }
 
 // --- Tách dòng từ shift.txt (Định dạng: 01/10/2026;sang;AD01,AD02) ---
+// --- Tách dòng an toàn từ shift.txt (Định dạng: DD/MM/YYYY;ca;AD01,AD02) ---
 void shift_service::parse_line(std::string line, shift& s) {
-    if (!line.empty() && line.back() == '\r') {
-        line.pop_back();
-    }
+    // 1. Dọn sạch ký tự xuống dòng Windows \r\n hoặc khoảng trắng 2 đầu
+    line = search_algo::trim(line);
+    if (line.empty()) return;
+
     std::stringstream ss(line);
     std::string date_str, session, admins_str;
 
-    std::getline(ss, date_str, ';');
-    std::getline(ss, session, ';');
+    if (!std::getline(ss, date_str, ';')) return;
+    if (!std::getline(ss, session, ';')) return;
     std::getline(ss, admins_str, ';');
 
-    // Parse ngày (DD/MM/YYYY)
-    int d, m, y;
-    char slash;
+    date_str = search_algo::trim(date_str);
+    session = search_algo::to_lower(search_algo::trim(session));
+
+    // 2. Khởi tạo giá trị mặc định để tránh số rác từ bộ nhớ RAM
+    int d = 1, m = 1, y = 2026;
+    char slash1 = '/', slash2 = '/';
     std::stringstream ss_d(date_str);
-    ss_d >> d >> slash >> m >> slash >> y;
+    if (!(ss_d >> d >> slash1 >> m >> slash2 >> y)) {
+        d = 1; m = 1; y = 2026;
+    }
     date shift_date(d, m, y);
 
     s = shift(shift_date, session);
 
-    // Parse danh sách admin cách nhau bởi dấu phẩy
+    // 3. Tách danh sách admin, lọc bỏ hoàn toàn chuỗi rỗng và dấu phẩy thừa
     std::stringstream ss_adm(admins_str);
     std::string admin_id;
     while (std::getline(ss_adm, admin_id, ',')) {
-        if (!admin_id.empty()) {
-            s.add_admin(admin_id); // Tự động thêm vào mảng tối đa 4 người
+        admin_id = search_algo::trim(admin_id);
+        if (!admin_id.empty() && s.get_current_count() < 4) {
+            s.add_admin(admin_id); // Đảm bảo chỉ nhận mã admin chuẩn, tối đa 4 người
         }
     }
 }
@@ -229,4 +239,8 @@ void shift_service::display_all() {
         curr = curr->get_next();
     }
     std::cout << "===================================================\n";
+}
+
+linked_list<shift> shift_service::get_all_shifts() const {
+    return shift_list;
 }
