@@ -8,6 +8,8 @@
 #include "../Service/borrow_service.h"
 #include "../Service/shift_service.h"
 #include "../Structure/queue.h"
+#include "../Model/action_log.h"
+#include "../Structure/stack.h" // Stack tự chế của bạn
 
 class library_controller {
 private:
@@ -38,6 +40,9 @@ private:
     std::string position_file;
 
     void load_positions();
+    stack<action_log<book>> book_undo_stack;
+    stack<action_log<user>> user_undo_stack;
+    stack<action_log<borrow>> borrow_undo_stack;
 
 public:
     library_controller();

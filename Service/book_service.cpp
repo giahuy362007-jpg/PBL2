@@ -147,3 +147,24 @@ void book_service::parse_line(std::string line, book& b) {
     // Khởi tạo đối tượng book hoàn chỉnh
     b = book(id, title, author, category, quantity, year);
 }
+
+linked_list<book> book_service::filter_books(std::string title_kw, std::string author_kw, std::string category_kw, int year) {
+    linked_list<book> result;
+    node<book>* curr = book_list.get_head();
+
+    while (curr != nullptr) {
+        book b = curr->get_data();
+        bool match = true;
+
+        if (!title_kw.empty() && !search_algo::contains(b.get_title(), title_kw)) match = false;
+        if (!author_kw.empty() && !search_algo::contains(b.get_author(), author_kw)) match = false;
+        if (!category_kw.empty() && !search_algo::contains(b.get_category(), category_kw)) match = false;
+        if (year > 0 && b.get_year() != year) match = false;
+
+        if (match) {
+            result.push_back(b);
+        }
+        curr = curr->get_next();
+    }
+    return result;
+}
