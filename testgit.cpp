@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <limits>
+#include <stdexcept>
 #include "Controller/library_controller.h"
 
 using namespace std;
@@ -48,17 +49,25 @@ string input_session(string prompt) {
 date input_valid_date(string prompt) {
     while (true) {
         cout << prompt;
+
         int d, m, y;
+
         if (cin >> d >> m >> y) {
-            date dt(d, m, y);
-            if (dt.is_valid()) {
+            try {
+                date dt(d, m, y);
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 return dt;
             }
+            catch (const invalid_argument&) {
+                cout << "[Loi] Ngay khong hop le! Vui long nhap lai.\n";
+            }
         }
-        cout << "[Loi] Ngay khong hop le hoac khong ton tai! Vui long nhap lai.\n";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        else {
+            cout << "[Loi] Vui long nhap day du ngay, thang, nam bang so.\n";
+            cin.clear();
+        }
+
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Xóa bộ kí tự thừa đến kí tự '\n'
     }
 }
 
